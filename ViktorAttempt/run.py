@@ -1,22 +1,24 @@
 
 import numpy as np
-import cupy as cp
+#import cupy as cp
+try:
+    import cupy as cp
+    xp = cp
+    xp_is_cupy = True
+except ImportError:
+    print("CuPy not available, using NumPy instead.")
+    xp = np
+    xp_is_cupy = False
 
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-xp = np
-
 def get_numpy(arr):
-    if isinstance(arr, cp.ndarray):
-        return cp.asnumpy(arr)
-    else:
-        return arr
-
+    return arr.get() if xp_is_cupy else arr
 
 
 class Environment:
-    def __init__(self, n_agents, goal_calculator, target_generator=None, dt=0.1):
+    def __init__(self, n_agents, goal_calculator, target_generator=None, dt=0.1, memory_length=10, perception_radius=0.1):
 
         self.dt = dt
 
@@ -27,6 +29,10 @@ class Environment:
 
         self.max_speed = 1e-2*xp.ones(n_agents)
         self.perception_radius = xp.ones(n_agents)
+
+        self.memory_target_positions = xp.zeros((2, 2, n_agents), dtype=np.float32)
+        self.memory_length = memory_length * xp.ones((n_agents, n_agents), dtype=np.int16)
+        self.last_seen_positions = xp.empty((2, n_agents, n_agents), dtype=np.float32)
 
         #self.target_agents = np.zeros((2, n_agents), dtype=np.int)
         #self.target_agents = np.random.randint(0, n_agents-1, size=(2, n_agents))
@@ -49,8 +55,13 @@ class Environment:
         # Communicate with other agents
         # TODO::
 
+
+
         # Calculate new target position
-        self.goal_positions = self.goal_calculator(self.positions, self.target_agents)
+        p1 = positions[:, target_agents[0]]
+        p2 = positions[:, target_agents[1]]
+
+        self.goal_positions = self.goal_calculator(self.positions, self.)
         
         diff = self.goal_positions - self.positions
         distance = xp.linalg.norm(diff, axis=0)
@@ -114,10 +125,7 @@ def animate_positions(environment, timesteps, nframes, interval=100):
     plt.show()
 
 
-def between_goal_calculator(positions, target_agents):
-
-    p1 = positions[:, target_agents[0]]
-    p2 = positions[:, target_agents[1]]
+def between_goal_calculator(positions, p1, p2):
 
     goal_method = "less-stupid-behind"
     if goal_method == "midpoint":
@@ -168,7 +176,7 @@ def target_generator(n_agents, max_n_clusters=10):
 
 
 if __name__ == "__main__":
-    n_agents = 5000
+    n_agents = 500
     timesteps = 1000
     nframes = 8000
 
