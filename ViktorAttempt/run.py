@@ -1,5 +1,6 @@
 
 import numpy as np
+import math
 #import cupy as cp
 try:
     import cupy as cp
@@ -166,29 +167,60 @@ def target_generator(n_agents, max_n_clusters=10):
     Returns:
         np.ndarray: Random target agents for each agent.
     """
-    cluster_indices = xp.random.randint(0, max_n_clusters, size=n_agents)
-    target_agents = xp.zeros((2, n_agents), dtype=np.int32)
-    agent_clusters = xp.zeros((n_agents,), dtype=np.int32)
-    
+
+    # This method ONLY creates clusters
+
+    if n_agents < 3*max_n_clusters:
+        print("We restrict the number of clusters as the number of agents is too small.")
+        max_n_clusters = math.floor(n_agents//3)
+
+    def random_partition(n, arr_size):
+        """
+        Create a somewhat random integer partition filling the list with 0 if necessary.
+        """
+        output = arr_size*[0]
+        remain_n = n
+
+
+        for i in range(arr_size-2):
+            value = xp.random.randint(low=0, high=remain_n)
+            output[i] = value
+
+            remain_n = remain_n - value
+        
+        output[-1] = remain_n
+
+        return output
+
+    # This guaranters that our partitions have atleast 3 elements
+    randpart = random_partition(n_agents-3*max_n_clusters, max_n_clusters)
+    part = [3 + i for i in randpart]
+
+    # # Here we could also use scipy random partition
+    # import sympy
+    # rand_part = sympy.combinatorics.partitions.random_integer_partition(n_agents-3*max_n_clusters, max_n_clusters)
+    # rand_part = rand_part + (max_n_clusters-len(rand_part))*[0]
+    # part = max_n_clusters*[3] + rand_part
+
+    # Generate targets which will then approperly rotated.
+    target_agents = xp.array((xp.arange(start=0, stop=n_agents-1, step=1, dtype=int), 
+                             xp.arange(start=0, stop=n_agents-1, step=1, dtype=int)))
+
+
+    # Start rotating the slices.
+    p_end = 0
     for i in range(max_n_clusters):
-        indices = xp.where(cluster_indices == i)[0]
-        if indices.shape[0] > 1:
-            choice_one = xp.random.choice(indices, size=len(indices), replace=False)
-            # We are not allowed to choose ourself
-            choice_mask = choice_one == indices
-            choice_one[choice_mask] = indices[~choice_mask][:xp.sum(choice_mask)]   
+        p_start = p_end
+        p_end = p_end + part[i]
+        target_agents[0][p_start:p_end] = xp.roll(target_agents[0][p_start:p_end], 1)
+        target_agents[1][p_start:p_end] = xp.roll(target_agents[1][p_start:p_end], -1)
 
-            choice_two = xp.random.choice(indices, size=len(indices), replace=False)
-            # We are not allowed to choose ourself or the first choice
-            choice_mask = xp.logical_or(choice_two == indices, choice_two == choice_one)
-            choice_two[choice_mask] = indices[~choice_mask][:xp.sum(choice_mask)]
+    # This maps the indices to the cluster. Could probably be improved.
+    agent_cluster = []
+    for i, j in enumerate(part):
+        agent_cluster = agent_cluster + j*[i]
 
-            target_agents[0, indices] = choice_one
-            target_agents[1, indices] = choice_two
-
-            agent_clusters[indices] = i
-    
-    return target_agents, agent_clusters
+    return target_agents, agent_cluster
 
 
 if __name__ == "__main__":
