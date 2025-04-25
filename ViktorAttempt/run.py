@@ -189,31 +189,31 @@ def target_generator(n_agents, max_n_clusters=10):
 
     # This method ONLY creates clusters
 
-    if n_agents < 3*max_n_clusters:
-        print("We restrict the number of clusters as the number of agents is too small.")
-        max_n_clusters = math.floor(n_agents//3)
+	if n_agents < 3*max_n_clusters:
+		print("We restrict the number of clusters as the number of agents is too small.")
+		max_n_clusters = math.floor(n_agents//3)
 
-    def random_partition(n, arr_size):
-        """
+	def random_partition(n, arr_size):
+		"""
         Create a somewhat random integer partition filling the list with 0 if necessary.
         """
-        output = arr_size*[0]
-        remain_n = n
+		output = arr_size*[0]
+		remain_n = n
 
 
-        for i in range(arr_size-2):
-            value = xp.random.randint(low=0, high=remain_n)
-            output[i] = value
+		for i in range(arr_size-2):
+			value = xp.random.randint(low=0, high=remain_n)
+			output[i] = value
 
-            remain_n = remain_n - value
+			remain_n = remain_n - value
         
-        output[-1] = remain_n
+		output[-1] = remain_n
 
-        return output
+		return output
 
     # This guaranters that our partitions have atleast 3 elements
-    randpart = random_partition(n_agents-3*max_n_clusters, max_n_clusters)
-    part = [3 + i for i in randpart]
+	randpart = random_partition(n_agents-3*max_n_clusters, max_n_clusters)
+	part = [3 + i for i in randpart]
 
     # # Here we could also use scipy random partition
     # import sympy
@@ -222,24 +222,24 @@ def target_generator(n_agents, max_n_clusters=10):
     # part = max_n_clusters*[3] + rand_part
 
     # Generate targets which will then approperly rotated.
-    target_agents = xp.array((xp.arange(start=0, stop=n_agents-1, step=1, dtype=int), 
+	target_agents = xp.array((xp.arange(start=0, stop=n_agents-1, step=1, dtype=int), 
                              xp.arange(start=0, stop=n_agents-1, step=1, dtype=int)))
 
 
     # Start rotating the slices.
-    p_end = 0
-    for i in range(max_n_clusters):
-        p_start = p_end
-        p_end = p_end + part[i]
-        target_agents[0][p_start:p_end] = xp.roll(target_agents[0][p_start:p_end], 1)
-        target_agents[1][p_start:p_end] = xp.roll(target_agents[1][p_start:p_end], -1)
+	p_end = 0
+	for i in range(max_n_clusters):
+		p_start = p_end
+		p_end = p_end + part[i]
+		target_agents[0][p_start:p_end] = xp.roll(target_agents[0][p_start:p_end], 1)
+		target_agents[1][p_start:p_end] = xp.roll(target_agents[1][p_start:p_end], -1)
 
     # This maps the indices to the cluster. Could probably be improved.
-    agent_cluster = []
-    for i, j in enumerate(part):
-        agent_cluster = agent_cluster + j*[i]
+	agent_cluster = []
+	for i, j in enumerate(part):
+		agent_cluster = agent_cluster + j*[i]
 
-    return target_agents, agent_cluster
+	return target_agents, agent_cluster
 
 
 if __name__ == "__main__":
