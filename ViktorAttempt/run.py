@@ -61,7 +61,7 @@ class Environment:
         p1 = positions[:, target_agents[0]]
         p2 = positions[:, target_agents[1]]
 
-        self.goal_positions = self.goal_calculator(self.positions, self.)
+        # self.goal_positions = self.goal_calculator(self.positions, self.)
         
         diff = self.goal_positions - self.positions
         distance = xp.linalg.norm(diff, axis=0)
@@ -127,16 +127,32 @@ def animate_positions(environment, timesteps, nframes, interval=100):
 
 def between_goal_calculator(positions, p1, p2):
 
-    goal_method = "less-stupid-behind"
-    if goal_method == "midpoint":
-        pgoal = 0.5 *(p1 + p2)
-        return pgoal
-    elif goal_method == "stupid-behind":
-        pgoal = p1
-        return pgoal
-    elif goal_method == "less-stupid-behind":
-        pgoal = p1 + 0.05*(p1 - p2)
-        return pgoal
+    goal_method = "inbetween"
+    match goal_method:
+        case "midpoint":
+            pgoal = 0.5 *(p1 + p2)
+        case "inbetween":
+            # We calculate the projection of the agent position on the line segment p2 + t(p_1 - p_2), t\in [0, 1]
+            direction = p1-p2
+            scalar_projection = xp.linalg.vecdot(positions-p2, direction, axis=0)//xp.linalg.vecdot(direction, direction, axis=0)
+            # If we divide by 0 we get NaNs which should be replaced by 0
+            scalar_projection[xp.isnan(scalar_projection)] = 0
+            t = xp.maximum(xp.minimum(scalar_projection, 1), 0)
+            pgoal = p2 + t*direction
+        case "tailgating":
+            # We calculate the projection of the agent position on the line segment p2 + t(p_1 - p_2), t\in [-\infty, 0]
+            direction = p1-p2
+            scalar_projection = xp.linalg.vecdot(positions-p2, direction, axis=0)//xp.linalg.vecdot(direction, direction, axis=0)
+            scalar_projection[xp.isnan(scalar_projection)] = 0
+            t = xp.minimum(scalar_projection, 0)
+            pgoal = p2 + t*direction
+        case "stupid-behind":
+            pgoal = p1
+        case "less-stupid-behind":
+            pgoal = p1 + 0.05*(p1 - p2)
+    
+    return pgoal
+    
 
 
 def target_generator(n_agents, max_n_clusters=10):
