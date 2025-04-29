@@ -28,8 +28,8 @@ class Environment:
 		self.positions = xp.random.rand(2, n_agents).astype(np.float32)
 		self.last_positions = xp.copy(self.positions)
 
-		self.max_speed = 1e-3 + xp.abs(1e-2*xp.random.normal(size=(n_agents,)))#xp.ones(n_agents)
-		self.perception_radius = xp.ones(n_agents)
+		self.max_speed = 1e-2 + xp.abs(1e-2*xp.random.normal(size=(n_agents,)))#xp.ones(n_agents)
+		self.perception_radius = perception_radius*xp.ones(n_agents)
 
 		self.memory_target_positions = xp.random.rand(2, 2, n_agents).astype(np.float32)
 		self.memory_length = memory_length * xp.ones((n_agents, n_agents), dtype=np.int16)
@@ -147,35 +147,57 @@ def animate_positions(environment, timesteps, nframes, interval=100):
 
 def between_goal_calculator(positions, p1, p2):
 
-    goal_method = "inbetween"
-    match goal_method:
-        case "midpoint":
-            pgoal = 0.5 *(p1 + p2)
-        case "inbetween":
-            # We calculate the projection of the agent position on the line segment p2 + t(p_1 - p_2), t\in [0, 1]
-            direction = p1-p2
-            scalar_projection = xp.linalg.vecdot(positions-p2, direction, axis=0)//xp.linalg.vecdot(direction, direction, axis=0)
-            # If we divide by 0 we get NaNs which should be replaced by 0
-            scalar_projection[xp.isnan(scalar_projection)] = 0
-            t = xp.maximum(xp.minimum(scalar_projection, 1), 0)
-            pgoal = p2 + t*direction
-        case "tailgating":
-            # We calculate the projection of the agent position on the line segment p2 + t(p_1 - p_2), t\in [-\infty, 0]
-            direction = p1-p2
-            scalar_projection = xp.linalg.vecdot(positions-p2, direction, axis=0)//xp.linalg.vecdot(direction, direction, axis=0)
-            scalar_projection[xp.isnan(scalar_projection)] = 0
-            t = xp.minimum(scalar_projection, 0)
-            pgoal = p2 + t*direction
-        case "stupid-behind":
-            pgoal = p1
-        case "less-stupid-behind":
-            pgoal = p1 + 0.05*(p1 - p2)
-    
-    return pgoal
-    
+	goal_method = "tailgating"
+	match goal_method:
+		case "midpoint":
+			pgoal = 0.5 *(p1 + p2)
+		case "inbetween":
+			# We calculate the projection of the agent position on the line segment p2 + t(p_1 - p_2), t\in [0, 1]
+			direction = p1-p2
+			norm = xp.linalg.norm(direction, axis=0)
+			scalar_projection = xp.linalg.vecdot(positions-p2, direction, axis=0)/norm
+			# If we divide by 0 we get NaNs which should be replaced by 0
+			scalar_projection[xp.isnan(scalar_projection)] = 0
+			t = xp.maximum(xp.minimum(scalar_projection, 1), 0)
+			pgoal = p2 + t*direction
+		case "tailgating":
+			# We calculate the projection of the agent position on the line segment p2 + t(p_1 - p_2), t\in [-\infty, 0]
+			direction = p1-p2
+			norm = xp.linalg.norm(direction, axis=0)
+			scalar_projection = xp.linalg.vecdot(positions-p2, direction, axis=0)/norm
+			scalar_projection[xp.isnan(scalar_projection)] = 0
+			t = xp.minimum(scalar_projection, 0)
+			pgoal = p2 + t*direction
+		case "stupid-behind":
+			pgoal = p1
+		case "less-stupid-behind":
+			pgoal = p1 + 0.05*(p1 - p2)
+	
+	return pgoal
+	
+def target_generator(n_agents, max_n_clusters, singleton_size):
+
+	n_agents_cluster = n_agents - singleton_size
+	target_agents, cluster = cluster_generator(n_agents=n_agents_cluster, max_n_clusters=max_n_clusters)
+	
+		
+	target_index_1 = xp.random.randint(low=0, high=n_agents_cluster, size=singleton_size)
+	target_index_2 = xp.random.randint(low=0, high=n_agents_cluster, size=singleton_size)
+
+	mask = (target_index_1 == target_index_2)
+	target_index_2[mask] = (target_index_2[mask] + 1)%n_agents_cluster
+
+	new_target_agents = xp.stack([target_index_1, target_index_2], axis=0)
+	target_agents = xp.concatenate([target_agents, new_target_agents], axis=1)
+
+	cluster = cluster + singleton_size*[cluster[-1]+1]
+
+	return target_agents, cluster
+
+	
 
 
-def target_generator(n_agents, max_n_clusters=10):
+def cluster_generator(n_agents, max_n_clusters=10):
 	"""
 	Generates random target agents for each agent in the environment.
 
@@ -183,11 +205,11 @@ def target_generator(n_agents, max_n_clusters=10):
 		n_agents (int): Number of agents.
 		n_clusters (int): Number of clusters.
 
-    Returns:
-        np.ndarray: Random target agents for each agent.
-    """
+	Returns:
+		np.ndarray: Random target agents for each agent.
+	"""
 
-    # This method ONLY creates clusters
+	# This method ONLY creates clusters
 
 	if n_agents < 3*max_n_clusters:
 		print("We restrict the number of clusters as the number of agents is too small.")
@@ -195,38 +217,40 @@ def target_generator(n_agents, max_n_clusters=10):
 
 	def random_partition(n, arr_size):
 		"""
-        Create a somewhat random integer partition filling the list with 0 if necessary.
-        """
+		Create a somewhat random integer partition filling the list with 0 if necessary.
+		"""
 		output = arr_size*[0]
 		remain_n = n
 
 
 		for i in range(arr_size-2):
-			value = xp.random.randint(low=0, high=remain_n)
+			value = xp.random.randint(low=remain_n//(i+2), high=remain_n)
 			output[i] = value
 
 			remain_n = remain_n - value
-        
+		
 		output[-1] = remain_n
 
 		return output
+	
+	# TODO: Maybe add/use binomial distribution
 
-    # This guaranters that our partitions have atleast 3 elements
+	# This guarantees that our partitions have atleast 3 elements
 	randpart = random_partition(n_agents-3*max_n_clusters, max_n_clusters)
 	part = [3 + i for i in randpart]
 
-    # # Here we could also use scipy random partition
-    # import sympy
-    # rand_part = sympy.combinatorics.partitions.random_integer_partition(n_agents-3*max_n_clusters, max_n_clusters)
-    # rand_part = rand_part + (max_n_clusters-len(rand_part))*[0]
-    # part = max_n_clusters*[3] + rand_part
+	# # Here we could also use scipy random partition
+	# import sympy
+	# rand_part = sympy.combinatorics.partitions.random_integer_partition(n_agents-3*max_n_clusters, max_n_clusters)
+	# rand_part = rand_part + (max_n_clusters-len(rand_part))*[0]
+	# part = max_n_clusters*[3] + rand_part
 
-    # Generate targets which will then approperly rotated.
-	target_agents = xp.array((xp.arange(start=0, stop=n_agents-1, step=1, dtype=int), 
-                             xp.arange(start=0, stop=n_agents-1, step=1, dtype=int)))
+	# Generate targets which will then approperly rotated.
+	target_agents = xp.array((xp.arange(start=0, stop=n_agents, step=1, dtype=int), 
+							 xp.arange(start=0, stop=n_agents, step=1, dtype=int)))
 
 
-    # Start rotating the slices.
+	# Start rotating the slices.
 	p_end = 0
 	for i in range(max_n_clusters):
 		p_start = p_end
@@ -234,7 +258,7 @@ def target_generator(n_agents, max_n_clusters=10):
 		target_agents[0][p_start:p_end] = xp.roll(target_agents[0][p_start:p_end], 1)
 		target_agents[1][p_start:p_end] = xp.roll(target_agents[1][p_start:p_end], -1)
 
-    # This maps the indices to the cluster. Could probably be improved.
+	# This maps the indices to the cluster. Could probably be improved.
 	agent_cluster = []
 	for i, j in enumerate(part):
 		agent_cluster = agent_cluster + j*[i]
@@ -244,11 +268,12 @@ def target_generator(n_agents, max_n_clusters=10):
 
 if __name__ == "__main__":
 	n_agents = 500
-	timesteps = 3000
-	nframes = 3000
+	timesteps = 12000
+	nframes = 6000
+	ncluster = 10
 
-	#target_agents = target_generator(n_agents, 10)
+	# target_agents = target_generator(n_agents, 10)
 
-	env = Environment(n_agents, between_goal_calculator, lambda n: target_generator(n, 1), perception_radius=10.0)
+	env = Environment(n_agents, between_goal_calculator, lambda n: target_generator(n, ncluster, singleton_size=100), perception_radius=10.0)
 
 	animate_positions(env, timesteps, nframes, interval=1)
