@@ -204,9 +204,6 @@ def target_generator(n_agents, max_n_clusters, singleton_size):
 
 	return target_agents, cluster
 
-	
-
-
 def cluster_generator(n_agents, max_n_clusters=10):
 	"""
 	Generates random target agents for each agent in the environment.
@@ -275,6 +272,26 @@ def cluster_generator(n_agents, max_n_clusters=10):
 
 	return target_agents, agent_cluster
 
+def random_generator(n_agents):
+	"""
+	Creates random admissible targets
+	"""
+	# This is our identiy vector
+	id = xp.arange(start=0, stop=n_agents)
+	# Initialize an random array with values between 1 and n-1
+	rand_arr_1 = xp.random.randint(low=1, high=n_agents, size=n_agents)
+	# Adding the identity to the random arry and taking modulo n gives a function which has no fixed points.
+	target_agents_1 = (rand_arr_1 + id)%n_agents
+	# With same idea as above, generate a random array which has no duplicates as in rand_arr_1
+	# Here we use the argument with n-1 instead of n as we need to have it different to our id.
+	# Furthermore, we add 1 at the end to put it in the correct range.
+	rand_arr_2 = (rand_arr_1 + xp.random.randint(low=1, high=n_agents-1, size=n_agents))%(n_agents-1) + 1
+	target_agents_2 = (rand_arr_2 + id)%n_agents
+
+	target_agents = xp.array((target_agents_1, target_agents_2))
+	agent_cluster = list(range(n_agents)) #n_agents*[0]
+
+	return target_agents, agent_cluster
 
 if __name__ == "__main__":
 	n_agents = 500
@@ -284,8 +301,9 @@ if __name__ == "__main__":
 	goal_method = "tailgating"
 
 	# target_agents = target_generator(n_agents, 10)
-
+	
 	env = Environment(n_agents, lambda p1, p2, positions: between_goal_calculator(p1=p1, p2=p2, positions=positions, goal_method=goal_method), 
-				   lambda n: target_generator(n, ncluster, singleton_size=100), perception_radius=10.0)
+				   lambda n: random_generator(n), # target_generator(n, ncluster, singleton_size=100),
+					perception_radius=10.0)
 
 	animate_positions(env, timesteps, nframes, interval=1)
