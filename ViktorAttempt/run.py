@@ -48,7 +48,6 @@ class Environment:
 			
 		self.goal_positions = xp.random.rand(2, n_agents)
 
-
 	def update(self):
 		
 		# Copy last updates positions and velocities
@@ -145,9 +144,16 @@ def animate_positions(environment, timesteps, nframes, interval=100):
 	plt.show()
 
 
-def between_goal_calculator(positions, p1, p2):
+def between_goal_calculator(positions, p1, p2, goal_method):
+	"""
+	Provides the goal calculation for the agents base on the requested method.
 
-	goal_method = "tailgating"
+	Input:
+	:param positions: agent positions
+	:param p1: target agent positions 1
+	:param p2: target agent positions 2
+	:param goal_method: requested goalmethod, either "midpoint", "inbetween", "tailgaiting", "stupid-behind" or "less-stupid-behind"
+	"""
 	match goal_method:
 		case "midpoint":
 			pgoal = 0.5 *(p1 + p2)
@@ -172,6 +178,10 @@ def between_goal_calculator(positions, p1, p2):
 			pgoal = p1
 		case "less-stupid-behind":
 			pgoal = p1 + 0.05*(p1 - p2)
+		case _:
+			print('''Requested goal_method not implemented. 
+					Please use one of "midpoint", "inbetween", "tailgating", 
+		 			"stupid-behind" or "less-stupid-behind".''')
 	
 	return pgoal
 	
@@ -271,9 +281,11 @@ if __name__ == "__main__":
 	timesteps = 12000
 	nframes = 6000
 	ncluster = 10
+	goal_method = "tailgating"
 
 	# target_agents = target_generator(n_agents, 10)
 
-	env = Environment(n_agents, between_goal_calculator, lambda n: target_generator(n, ncluster, singleton_size=100), perception_radius=10.0)
+	env = Environment(n_agents, lambda p1, p2, positions: between_goal_calculator(p1=p1, p2=p2, positions=positions, goal_method=goal_method), 
+				   lambda n: target_generator(n, ncluster, singleton_size=100), perception_radius=10.0)
 
 	animate_positions(env, timesteps, nframes, interval=1)
