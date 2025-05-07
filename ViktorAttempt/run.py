@@ -97,7 +97,7 @@ class Environment:
 		
 
 
-def animate_positions(environment, timesteps, nframes, interval=100):
+def animate_positions(environment, timesteps, nframes, interval=100, filename="agent_animation.gif", save=False):
 	"""
 	Animates the positions of agents in the environment over time.
 
@@ -132,16 +132,23 @@ def animate_positions(environment, timesteps, nframes, interval=100):
 		print(f"Frame {frame} \r", end="")  # Print frame number
 		return scatter,
 
-
 	anim = FuncAnimation(fig, update, frames=nframes, interval=interval, blit=True, repeat=False)
-	plt.show()
-
+	# plt.show()
+	if save:
+		anim.save(filename + "_gif.gif", fps=15) # JGA: Tried 30 and 10...
+		print("Saving gif complete")
+	else:
+		plt.show()
 	avg_vel = xp.array(avg_vel)
 	
 	plt.figure()
 	plt.plot(get_numpy(avg_vel))
 	plt.title("Average Velocity Over Time")
-	plt.show()
+
+	if save:
+		plt.savefig(filename + "_plt.jpg")
+	else:
+		plt.show()
 
 
 def between_goal_calculator(positions, p1, p2, goal_method):
@@ -295,15 +302,20 @@ def random_generator(n_agents):
 
 if __name__ == "__main__":
 	n_agents = 500
-	timesteps = 12000
-	nframes = 6000
-	ncluster = 10
-	goal_method = "tailgating"
-
-	# target_agents = target_generator(n_agents, 10)
+	timesteps = 1800
+	nframes = 600
+	ncluster = 15
+	goal_method = "midpoint"
 	
-	env = Environment(n_agents, lambda p1, p2, positions: between_goal_calculator(p1=p1, p2=p2, positions=positions, goal_method=goal_method), 
-				   lambda n: random_generator(n), # target_generator(n, ncluster, singleton_size=100),
-					perception_radius=10.0)
+	perception_radius = 10.0
 
-	animate_positions(env, timesteps, nframes, interval=1)
+	from datetime import datetime
+
+	for i in range(10):
+
+		env = Environment(n_agents, lambda p1, p2, positions: between_goal_calculator(p1=p1, p2=p2, positions=positions, goal_method=goal_method), 
+						lambda n: random_generator(n), # target_generator(n, ncluster, singleton_size=5), 
+						perception_radius=perception_radius)
+		filename = f"saved_gifs//{datetime.today().strftime('%Y-%m-%d')}_{goal_method}_nagents_{n_agents}_perp_{perception_radius}_{timesteps}_{nframes}_{i}"
+
+		animate_positions(env, timesteps, nframes, interval=1, filename=filename, save=True)
