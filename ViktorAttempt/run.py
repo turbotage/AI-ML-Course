@@ -150,6 +150,14 @@ def animate_positions(environment, timesteps, nframes, interval=100, filename="a
 	else:
 		plt.show()
 
+	plt.figure()
+	create_graph_repr(env.target_agents)
+	plt.plot()
+
+	if save:
+		plt.savefig(filename + "_graph.jpg")
+	else:
+		plt.show()
 
 def between_goal_calculator(positions, p1, p2, goal_method):
 	"""
@@ -292,7 +300,7 @@ def random_generator(n_agents):
 	# With same idea as above, generate a random array which has no duplicates as in rand_arr_1
 	# Here we use the argument with n-1 instead of n as we need to have it different to our id.
 	# Furthermore, we add 1 at the end to put it in the correct range.
-	rand_arr_2 = (rand_arr_1 + xp.random.randint(low=1, high=n_agents-1, size=n_agents))%(n_agents-1) + 1
+	rand_arr_2 = (rand_arr_1 + xp.random.randint(low=0, high=n_agents-2, size=n_agents))%(n_agents-1) + 1
 	target_agents_2 = (rand_arr_2 + id)%n_agents
 
 	target_agents = xp.array((target_agents_1, target_agents_2))
@@ -318,4 +326,4 @@ if __name__ == "__main__":
 						perception_radius=perception_radius)
 		filename = f"saved_gifs//{datetime.today().strftime('%Y-%m-%d')}_{goal_method}_nagents_{n_agents}_perp_{perception_radius}_{timesteps}_{nframes}_{i}"
 
-		animate_positions(env, timesteps, nframes, interval=1, filename=filename, save=True)
+		animate_positions(env, timesteps, nframes, interval=1, filename=filename, save=False)
