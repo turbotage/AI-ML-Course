@@ -308,22 +308,40 @@ def random_generator(n_agents):
 
 	return target_agents, agent_cluster
 
+def create_graph_repr(target_agents):
+	target_agents_1, target_agents_2 = target_agents[0], target_agents[1]
+	edge_list_1 = [(ind, targ_ind) for ind, targ_ind in enumerate(target_agents_1)]
+	edge_list_2 = [(ind, targ_ind) for ind, targ_ind in enumerate(target_agents_2)]
+
+	import networkx as nx
+	G = nx.DiGraph()
+	G.add_edges_from(edge_list_1, color="r")
+	G.add_edges_from(edge_list_2, color="b")
+
+	pos = nx.spring_layout(G, seed=13648)
+	nx.draw_networkx_nodes(G, pos, node_size=10)
+	nx.draw_networkx_edges(G, pos, edgelist=edge_list_1, edge_color="skyblue")
+	nx.draw_networkx_edges(G, pos, edgelist=edge_list_2, edge_color="blueviolet")
+
+	return G
+
+
 if __name__ == "__main__":
-	n_agents = 500
-	timesteps = 1800
-	nframes = 600
+	n_agents = 10
+	timesteps = 600
+	nframes = 300
 	ncluster = 15
-	goal_method = "midpoint"
+	goal_method = "tailgating"
 	
-	perception_radius = 10.0
+	perception_radius = 0.5
 
 	from datetime import datetime
 
-	for i in range(10):
+	for i in range(2):
 
 		env = Environment(n_agents, lambda p1, p2, positions: between_goal_calculator(p1=p1, p2=p2, positions=positions, goal_method=goal_method), 
 						lambda n: random_generator(n), # target_generator(n, ncluster, singleton_size=5), 
 						perception_radius=perception_radius)
 		filename = f"saved_gifs//{datetime.today().strftime('%Y-%m-%d')}_{goal_method}_nagents_{n_agents}_perp_{perception_radius}_{timesteps}_{nframes}_{i}"
 
-		animate_positions(env, timesteps, nframes, interval=1, filename=filename, save=False)
+		animate_positions(env, timesteps, nframes, interval=1, filename=filename, save=True)
