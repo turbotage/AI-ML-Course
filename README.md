@@ -23,7 +23,7 @@ positioning scenarios:
     Decision making of the agents must be strictly local.
 
 2.  Initial setup is the same as in a. The difference is that $X$ now
-    tries to position itself so that $B$ is between $A$ and $X$ (" $X$
+    tries to position itself so that $B$ is between $A$ and $X$ ( $X$
     hides behind $B$, so that $A$ cannot attack/see\...).
 
 3.  Would anything change if agents are allowed to communicate? Can you
