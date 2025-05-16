@@ -22,9 +22,9 @@ positioning scenarios:
     position itself between $A$ and $B$. Every agent does the same.
     Decision making of the agents must be strictly local.
 
-2.  Initial setup is the same as in a). The difference is that $X$ now
-    tries to position itself so that $B$ is between $A$ and $X$ ("$X$
-    hides behind B, so that A cannot attack/see\...).
+2.  Initial setup is the same as in a. The difference is that $X$ now
+    tries to position itself so that $B$ is between $A$ and $X$ (" $X$
+    hides behind $B$, so that $A$ cannot attack/see\...).
 
 3.  Would anything change if agents are allowed to communicate? Can you
     imagine a scenario in which communication would be important?
@@ -60,10 +60,12 @@ these positions as far as possible depending on their speed and the
 timestep size.
 
 Here is the pseudo-code: Calculate the distance between the goal
-positions and the agents positions $$\begin{aligned}
+positions and the agents positions 
+$$\begin{aligned}
     \text{diff} &= \text{goal\_pos} - \text{old\_pos}\\
     \text{dist} &= \| \text{diff} \|.
-\end{aligned}$$ Then, we update the positions based upon the distance is
+\end{aligned}$$ 
+Then, we update the positions based upon the distance is
 reachable within the time step in the following way:
 $$\text{new\_pos} = \begin{cases}
         \text{goal\_pos} & vdt \leq \text{diff} \\
@@ -82,33 +84,38 @@ agents as an array.
 
 We have the following options for goal calculations:
 
--   \"midpoint\" - the goal is to position oneself in the middle between
+-   \"midpoint\":  the goal is to position oneself in the middle between
     both targets.
     $$\text{goal\_pos} = \frac{1}{2}\left(\text{target1\_pos} + \text{target1\_pos}\right).$$
 
--   \"inbetween\" - the goal is to position oneself on the closest point
+-   \"inbetween\":  the goal is to position oneself on the closest point
     in the line segment between the targets. For that, we calculate
     scalar projection of our vector onto the line and then by checking
     mininima and maxima with regards to $0$ and $1$, calculate the
     nearest point in the line segment. The pseudo code looks like this:
-    Calculate the scalar projection: $$\begin{aligned}
+    Calculate the scalar projection: 
+    $$\begin{aligned}
             \text{dir} &= \text{target1\_pos} - \text{target2\_pos}\\
             \text{norm} &= \| \text{dir} \| \\
             s &= \langle\text{pos}- \text{target2\_pos}, \text{dir}\rangle /\text{norm}.
         
-    \end{aligned}$$ Then the nearest point on the line segment is given
-    by $$\begin{aligned}
+    \end{aligned}$$ 
+    Then the nearest point on the line segment is given
+    by 
+    $$\begin{aligned}
             t &= \max\{\min \{s, 1\}, 0\}\\
             \text{goal\_pos} &= \text{target2\_pos} + t\cdot \text{dir}.
         
-    \end{aligned}$$ If the norm is $0$, we get a division by zero. In
+    \end{aligned}$$ 
+    If the norm is $0$, we get a division by zero. In
     this case both targets are on the same point, so just try to get to
     this point.
 
--   \"tailgating\" - the goal is to position to oneself to the closest
+-   \"tailgating\": the goal is to position to oneself to the closest
     point in the line behind target2. This is similar to \"midpoint\"
     with the difference being in the possible line parameter we are
-    looking for ($(-\infty, 0]$ instead of $[0, 1]$). $$\begin{aligned}
+    looking for ($(-\infty, 0]$ instead of $[0, 1]$). 
+    $$\begin{aligned}
             t &= \min \{s, 0\}\\
             \text{goal\_pos} &= \text{target2\_pos} + t\cdot \text{dir}.
         
@@ -126,20 +133,23 @@ modulo arithmetic to guarantee that every agent has two different
 targets and does not target themself.
 
 We set up the identity array as
-$$I = [0, 1, \ldots, \text{n\_agents}-1].$$ Then, if we add a random
+$$I = [0, 1, \ldots, \text{n\_agents}-1].$$ 
+Then, if we add a random
 integer array with values between $1$ and $\text{n\_agents}$ and take
 the result modulo $\text{n\_agents}$, we cannot get the identity:
 $$\begin{aligned}
     \text{shift1} & = \text{randInt(1, n\_agents)}\\ 
     \text{target1\_pos} &\equiv I + \text{shift1}  & \text{mod n\_agents}.
-\end{aligned}$$ For the second target, we need to guarantee a new shift
+\end{aligned}$$ 
+For the second target, we need to guarantee a new shift
 between $1$ and $\text{n\_agents}$ which is different to $\text{shift1}$
 at every position. We used the same trick as above, but with modulo
 $\text{n\_agents}-1$ to guarantee a new shift. Because we need to $1$ at
 the end, the random integer array is allowed this time to take values
 between $0$ and $\text{n\_agents}-2$. Note here, that an addition of
 $\text{n\_agents}-1$ corresponds to subtracting $1$ in modulo arithmetic
-which becomes $0$ when adding $1$ at the end. Thus $$\begin{aligned}
+which becomes $0$ when adding $1$ at the end. Thus 
+$$\begin{aligned}
     \text{shift2} & = \text{shift1} + \text{randInt(0, n\_agents-2)} &\text{mod n\_agents}\\ 
     \text{shift2} & = \text{shift2} +1 &\\
     \text{target2\_pos} &\equiv I + \text{shift2}  &\text{mod n\_agents}.
@@ -162,6 +172,8 @@ These states are characterized by non-moving agents usually huddling
 together, forming clusters and converging to single points. In some
 cases the end results was a little bit dynamic, but this is can be
 attributed to step size of the agents.
+
+![Midpoint full perception animation](saved_gifs/2025-05-12_midpoint_nagents_25_perp_5.0_900_450_1_gif.gif)
 
 # Influence of parameters
 
@@ -196,10 +208,12 @@ $\phi(v) = 1v$. Furthermore, if, as in our case, $|V|<\infty$, then
 $F(V) \simeq \mathbb{R}^{|V|}$
 
 For a directed graph $(V, E)$ we can also define an adjacency matrix $A$
-with $$A_{vw} = \begin{cases}
+with 
+$$A_{vw} = \begin{cases}
         1 & wv \in E \\
         0 & \text{else}.
-    \end{cases}$$ Note that for a dynamical subsystem of
+    \end{cases}$$
+Note that for a dynamical subsystem of
 $V'\subseteq V$, the induced adjacency matrix is just the restriction of
 $A$ to $V'$. Furthermore, if $V$ is a minimal dynamical system, then the
 row and column sum of $A$ is $2$. Note that $A$ can be viewed as a map
@@ -229,7 +243,8 @@ $\nabla\mathcal{E}(x_V) = \left(2I - A - A^T + \frac{1}{2}A^TA\right) x_V$.
 By setting
 $$T = 2I - A - A^T + \frac{1}{2}A^TA = 2\left(I-\frac{1}{2}A^T\right)\left(I-\frac{1}{2}A\right),$$
 the uniquely solution of the Gradient Flow is given by
-$$x_V(t) = X_0 \exp(-tT).$$ Note that for a minimal dynamical system,
+$$x_V(t) = X_0 \exp(-tT).$$ 
+Note that for a minimal dynamical system,
 the matrices $I-\frac{1}{2}A$ and $I-\frac{1}{2}A^T$ are positive
 semi-definite as the diagonal is $1$ and the sum of rows and columns is
 always $0$. In particular, $T$ has only eigenvalues which are greater or
