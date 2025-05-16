@@ -86,7 +86,7 @@ We have the following options for goal calculations:
 
 -   \"midpoint\":  the goal is to position oneself in the middle between
     both targets.
-    $$\text{goal\_pos} = \frac{1}{2}\left(\text{target1\_pos} + \text{target1\_pos}\right).$$
+    $'\text{goal\_pos} = \frac{1}{2}\left(\text{target1\_pos} + \text{target1\_pos}\right).'$
 
 -   \"inbetween\":  the goal is to position oneself on the closest point
     in the line segment between the targets. For that, we calculate
