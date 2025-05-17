@@ -19,20 +19,24 @@ def get_numpy(arr):
 
 
 class Environment:
-	def __init__(self, n_agents, goal_calculator, target_generator=None, dt=0.1, memory_length=10, perception_radius=0.1):
+	def __init__(self, n_agents, goal_calculator, target_generator=None, dt=0.1, 
+			  memory_length=10, perception_radius=0.1, communication_radius=0.1):
 
 		self.dt = dt
 
 		self.goal_calculator = goal_calculator
+
+		self.n_agents = n_agents
 
 		self.positions = xp.random.rand(2, n_agents).astype(np.float32)
 		self.last_positions = xp.copy(self.positions)
 
 		self.max_speed = 1e-2 + xp.abs(1e-2*xp.random.normal(size=(n_agents,)))#xp.ones(n_agents)
 		self.perception_radius = perception_radius*xp.ones(n_agents)
+		self.communication_radius = communication_radius*xp.ones(n_agents)
 
 		self.memory_target_positions = xp.random.rand(2, 2, n_agents).astype(np.float32)
-		self.memory_length = memory_length * xp.ones((n_agents, n_agents), dtype=np.int16)
+		self.memory_length = xp.ones((n_agents, n_agents), dtype=np.int16)
 		
 		#self.last_seen_positions = xp.random.rand((2, n_agents, n_agents)).astype(np.float32)
 
@@ -50,34 +54,42 @@ class Environment:
 
 	def update(self):
 		
+		# Update memory length, it has been one iteration since we last saw any other agent
+		self.memory_length += 1
+
 		# Copy last updates positions and velocities
 		self.last_positions = xp.copy(self.positions)
 
-		# Communicate with other agents
-		# TODO::
 
+		p1 = xp.zeros((2, self.n_agents), dtype=np.float32)
+		p2 = xp.zeros((2, self.n_agents), dtype=np.float32)
 
+		# Calculate pairwise distances between agents
+		within_perception_radius = self.positions[...,None] - self.positions[...,None].repeat(self.n_agents, axis=2)
+		within_perception_radius = xp.linalg.norm(within_perception_radius, axis=0)
 
-		# Calculate new target position
-		p1 = self.positions[:, self.target_agents[0]]
-		p1_dist = xp.linalg.norm(p1 - self.positions, axis=0)
-		
-		perception_mask = p1_dist > self.perception_radius
-		# If the p1 agent is outside the perception radius, we use the last seen position
-		p1[:,perception_mask] = self.memory_target_positions[0,:,perception_mask].T
+		# Check which agents are within the communication radius
+		memory_mask = within_perception_radius < self.communication_radius
+		# Check which agents are within the perception radius
+		perception_mask = within_perception_radius < self.perception_radius
 
-		# If p1 is within perception radius, this is our last seen position
-		self.memory_target_positions[0,:,~perception_mask] = p1[:,~perception_mask].T
+		# Agents should have zero memory length of agents within their perception radius
+		self.memory_length[perception_mask] = 0
 
+		# Loop over each agent, setting their target positions based on the last memory of the target agents
+		for n in range(self.n_agents):
+			mem = memory_mask[n,:]
+			idx = xp.where(mem)[0]
+			
+			last_mem_idx = xp.argmin(self.memory_length[mem, self.target_agents[0, n]])
+			# idx[last_mem_idx] holds the index of the agent within the communication radius of the n-th agent
+			# with the shortest memory length to the target, if no other agent is within the communication radius
+			# this is the n-th agent itself
 
-		p2 = self.positions[:, self.target_agents[1]]
-		p2_dist = xp.linalg.norm(p2 - self.positions, axis=0)
-		perception_mask = p2_dist > self.perception_radius
-		# If the p2 agent is outside the perception radius, we use the last seen position
-		p2[:,perception_mask] = self.memory_target_positions[1,:,perception_mask].T
+			p1[:,n] = self.memory_target_positions[0, :, idx[last_mem_idx]]
 
-		# If p2 is within perception radius, this is our last seen position
-		self.memory_target_positions[1,:,~perception_mask] = p2[:,~perception_mask].T
+			last_mem_idx = xp.argmin(self.memory_length[mem, self.target_agents[1, n]])
+			p2[:,n] = self.memory_target_positions[0, :, idx[last_mem_idx]]
 
 		# Calculate goal position and move towards it
 		self.goal_positions = self.goal_calculator(self.positions, p1, p2)
@@ -89,6 +101,9 @@ class Environment:
 		movement_mask = distance > vdt
 		self.positions[:,movement_mask] += vdt[movement_mask] * diff[:,movement_mask] / distance[movement_mask]
 		self.positions[:,~movement_mask] = self.goal_positions[:,~movement_mask]
+
+		# Walls
+		self.positions = xp.clip(self.positions, 0, 1)
 
 	def get_average_velocity(self):
 		return xp.linalg.norm(self.positions - self.last_positions, axis=0).mean() / self.dt
@@ -342,6 +357,6 @@ if __name__ == "__main__":
 		env = Environment(n_agents, lambda p1, p2, positions: between_goal_calculator(p1=p1, p2=p2, positions=positions, goal_method=goal_method), 
 						lambda n: random_generator(n), # target_generator(n, ncluster, singleton_size=5), 
 						perception_radius=perception_radius)
-		filename = f"saved_gifs//{datetime.today().strftime('%Y-%m-%d')}_{goal_method}_nagents_{n_agents}_perp_{perception_radius}_{timesteps}_{nframes}_{i}"
+		filename = f"saved_gifs//{datetime.today().strftime('%Y-%m-%d')}_{goal_method}_nagents_{n_agents}_perp_{perception_radius}_{}_{timesteps}_{nframes}_{i}"
 
 		animate_positions(env, timesteps, nframes, interval=1, filename=filename, save=True)
