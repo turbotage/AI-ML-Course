@@ -86,7 +86,7 @@ We have the following options for goal calculations:
 
 -   \"midpoint\":  the goal is to position oneself in the middle between
     both targets.
-    $$\text{goal\_pos} = \frac{1}{2}\left(\text{target1\_pos} + \text{target1\_pos}\right).$$
+    $'\text{goal\_pos} = \frac{1}{2}\left(\text{target1\_pos} + \text{target1\_pos}\right).'$
 
 -   \"inbetween\":  the goal is to position oneself on the closest point
     in the line segment between the targets. For that, we calculate
@@ -163,8 +163,7 @@ $$\begin{aligned}
 
 In task (a), we considered the \"in-between\" and \"mid-point\" goal
 calculation method, which try to place the agents either on the nearest
-point of the in-between-line of the target agents or in the middle. 
-In
+point of the in-between-line of the target agents or in the middle. In
 both cases, results seemed to coincide differing only in the speed of
 convergence.
 
@@ -177,13 +176,17 @@ attributed to step size of the agents.
 The following example is of 25 agents which use the midpoint calculation:
 
 ![Midpoint full perception animation](saved_gifs/2025-05-12_midpoint_nagents_25_perp_5.0_900_450_1_gif.gif)
+
 ![Midpoint full perception velocity](saved_gifs/2025-05-12_midpoint_nagents_25_perp_5.0_900_450_1_plt.jpg)
+
 ![Midpoint full perception graph representation](saved_gifs/2025-05-12_midpoint_nagents_25_perp_5.0_900_450_1_graph.jpg)
 
 The following example is of 25 agents which use the inbetween calculation:
 
 ![Midpoint full perception animation](saved_gifs/2025-05-12_inbetween_nagents_25_perp_5.0_900_450_1_gif.gif)
+
 ![Midpoint full perception velocity](saved_gifs/2025-05-12_inbetween_nagents_25_perp_5.0_900_450_1_plt.jpg)
+
 ![Midpoint full perception graph representation](saved_gifs/2025-05-12_inbetween_nagents_25_perp_5.0_900_450_1_graph.jpg)
 
 In both examples, some clusters seem to form quickly with other agents joining after.
@@ -204,7 +207,9 @@ The latter one can be somewhat attributed to the stepsize.
 The following example is of 25 agents which use the tailgating calculation:
 
 ![Midpoint full perception animation](saved_gifs/2025-05-12_tailgating_nagents_25_perp_5.0_900_450_1_gif.gif)
+
 ![Midpoint full perception velocity](saved_gifs/2025-05-12_tailgating_nagents_25_perp_5.0_900_450_1_plt.jpg)
+
 ![Midpoint full perception graph representation](saved_gifs/2025-05-12_tailgating_nagents_25_perp_5.0_900_450_1_graph.jpg)
 
 Note how the end velocity is not $0$ - the agents are fluctuating near a point.
@@ -220,11 +225,21 @@ Some agents can get lost on the side of the field and only become active as soon
 When this happens it can trigger a chain reaction with other agents becoming active as a result of the agent moving.
 Overall, the end state becomes more cluttered.
 
-Have for example a look at these simulations (full perception, 0.5)
+Have for example a look at these simulations (full perception, 0.5, 0.2) with 200 agents for the inbetween method
 
 ![Inbetween full perception](saved_gifs/2025-05-19_inbetween_nagents_200_perp_5_1200_600_2_gif.gif)
+
 ![Inbetween half perception](saved_gifs/2025-05-19_inbetween_nagents_200_perp_0.5_1200_600_4_gif.gif)
+
 ![Inbetween fifth perception](saved_gifs/2025-05-19_inbetween_nagents_200_perp_0.2_1200_600_4_gif.gif)
+
+and for the tailgating method:
+
+![Inbetween full perception](saved_gifs/2025-05-19_tailgating_nagents_200_perp_5_1200_600_2_gif.gif)
+
+![Inbetween half perception](saved_gifs/2025-05-19_tailgating_200_perp_0.5_1200_600_4_gif.gif)
+
+![Inbetween fifth perception](saved_gifs/2025-05-19_tailgating_nagents_200_perp_0.2_1200_600_4_gif.gif)
 
 # Mathematical formulation
 
@@ -233,8 +248,8 @@ Have for example a look at these simulations (full perception, 0.5)
 The start setting of our problems can be modelled as simple direct
 graphs where the set of vertices $V$ is the set of agents and two
 vertices $v_1$ and $v_2$ are connected by edge $e$ in direction $v_1v_2$
-iff $v_1$ has $v_2$ as its target agent. 
-We will denote by $E$ the set of all directed edges.
+iff $v_1$ has $v_2$ as its target agent. We will denote by $E$ the set
+of all directed edges.
 
 For a vertex $v$, we will denote by $\deg^+(v)$ the *outdegree* and by
 $\deg^-(v)$ the *indegree* of the vertex $v$. In our case $\deg^+ = 2$,
@@ -244,7 +259,9 @@ $$2\cdot|V| = \sum_{v\in V} \deg^+(v) = \sum_{v\in V} \deg^-(v) = |E|.$$
 We call $V'\subseteq V$ a *dynamical system* if the induced subgraph can
 be modelled as a result of the same problem setting, i.e. the induced
 subgraph is only depended on itself. This is equivalent to the following
-easy criteria $$2\cdot |V'| = |E(V')|.$$ We can the sets of dynamical
+easy criteria 
+$$2\cdot |V'| = |E(V')|.$$ 
+We can the sets of dynamical
 systems with the set order $V_1 \leq V_2$ iff $V_1 \subseteq V_2$. We
 call $V'\subseteq V$ a *minimal dynamical system* if it is minimal with
 regards to this order.
@@ -252,8 +269,7 @@ regards to this order.
 Let us consider the free $\mathbb{R}$-vector space $F(V)$ of $V$, which
 has as elements finite formal sums of the following form
 $$y = \sum_{v\in V} \lambda_v v$$ 
-with $\lambda_v\in \mathbb{R}$. There
-is a canonical embedding $\phi$ of $V$ into $F(V)$ given by
+with $\lambda_v\in \mathbb{R}$. There is a canonical embedding $\phi$ of $V$ into $F(V)$ given by
 $\phi(v) = 1v$. Furthermore, if, as in our case, $|V|<\infty$, then
 $F(V) \simeq \mathbb{R}^{|V|}$
 
@@ -269,14 +285,12 @@ $A$ to $V'$. Furthermore, if $V$ is a minimal dynamical system, then the
 row and column sum of $A$ is $2$. Note that $A$ can be viewed as a map
 from $V$ into $F(V)$ which maps $w$ onto the sum of $v$'s with
 $vw\in E$. This map extends then uniquely to a linear map from $F(V)$
-onto itself given by 
-$$Ay = \sum_{v, w\in W} A_{vw} \lambda_w v.$$
+onto itself given by $$Ay = \sum_{v, w\in W} A_{vw} \lambda_w v$$
 
 Each vertex $v$ in $V$ has a position feature $x_v\in \mathbb{R}^2$.
 This map extends uniquely as a linear map on $F(V)$ given by
-$$x_{\sum_{v\in V} \lambda_v v} = \sum_{v\in V} \lambda_v x_v.$$ 
-So $x$
-can be viewed as a matrix of the form $\mathbb{R}^{2\times |v|}$. As a
+$$x_{\sum_{v\in V} \lambda_v v} = \sum_{v\in V} \lambda_v x_v.$$
+So $x$ can be viewed as a matrix of the form $\mathbb{R}^{2\times |v|}$. As a
 result, $x$ behaves nicely with linear transformations of $F(V)$
 $$x_{Ty} = \sum_{v, w\in V} T_{vw} \lambda_w x_v = Tx_y$$ 
 for any $y\in F(V)$.
