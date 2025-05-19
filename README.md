@@ -199,19 +199,21 @@ attributed to step size of the agents.
 
 The following example is of 25 agents which use the midpoint calculation:
 
-![Midpoint full perception animation](saved_gifs/2025-05-12_midpoint_nagents_25_perp_5.0_900_450_1_gif.gif)
+![Midpoint full perception animation](saved_gifs/2025-05-19_midpoint_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_gif.gif) 
 
-![Midpoint full perception velocity](saved_gifs/2025-05-12_midpoint_nagents_25_perp_5.0_900_450_1_plt.jpg)
+[//] # (saved_gifs/2025-05-12_midpoint_nagents_25_perp_5.0_900_450_1_gif.gif)
 
-![Midpoint full perception graph representation](saved_gifs/2025-05-12_midpoint_nagents_25_perp_5.0_900_450_1_graph.jpg)
+![Midpoint full perception velocity](saved_gifs/2025-05-19_midpoint_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_plt.jpg)
+
+![Midpoint full perception graph representation](saved_gifs/2025-05-19_midpoint_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_graph.jpg)
 
 The following example is of 25 agents which use the inbetween calculation:
 
-![Midpoint full perception animation](saved_gifs/2025-05-12_inbetween_nagents_25_perp_5.0_900_450_1_gif.gif)
+![Midpoint full perception animation](saved_gifs/2025-05-19_inbetween_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_gif.gif)
 
-![Midpoint full perception velocity](saved_gifs/2025-05-12_inbetween_nagents_25_perp_5.0_900_450_1_plt.jpg)
+![Midpoint full perception velocity](saved_gifs/2025-05-19_inbetween_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_plt.jpg)
 
-![Midpoint full perception graph representation](saved_gifs/2025-05-12_inbetween_nagents_25_perp_5.0_900_450_1_graph.jpg)
+![Midpoint full perception graph representation](saved_gifs/2025-05-19_inbetween_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_graph.jpg)
 
 In both examples, some clusters seem to form quickly with other agents joining after.
 We believe that these first cluster collapses are due what we call minimial dynamical systems.
@@ -230,11 +232,11 @@ The latter one can be somewhat attributed to the stepsize.
 
 The following example is of 25 agents which use the tailgating calculation:
 
-![Midpoint full perception animation](saved_gifs/2025-05-12_tailgating_nagents_25_perp_5.0_900_450_1_gif.gif)
+![Midpoint full perception animation](saved_gifs/2025-05-19_tailgating_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_gif.gif)
 
-![Midpoint full perception velocity](saved_gifs/2025-05-12_tailgating_nagents_25_perp_5.0_900_450_1_plt.jpg)
+![Midpoint full perception velocity](saved_gifs/2025-05-19_tailgating_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_plt.jpg)
 
-![Midpoint full perception graph representation](saved_gifs/2025-05-12_tailgating_nagents_25_perp_5.0_900_450_1_graph.jpg)
+![Midpoint full perception graph representation](saved_gifs/2025-05-19_tailgating_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_graph.jpg)
 
 Note how the end velocity is not $0$ - the agents are fluctuating near a point.
 
@@ -251,19 +253,44 @@ Overall, the end state becomes more cluttered.
 
 Have for example a look at these simulations (full perception, 0.5, 0.2) with 200 agents for the inbetween method
 
-![Inbetween full perception](saved_gifs/2025-05-19_inbetween_nagents_200_perp_5_1200_600_2_gif.gif)
+![Inbetween full perception](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Inbetween half perception](saved_gifs/2025-05-19_inbetween_nagents_200_perp_0.5_1200_600_4_gif.gif)
+![Inbetween half perception](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.5_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Inbetween fifth perception](saved_gifs/2025-05-19_inbetween_nagents_200_perp_0.2_1200_600_4_gif.gif)
+![Inbetween fifth perception](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-and for the tailgating method:
+![Inbetween fifth perception](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.0001_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Tailgating full perception](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_1e-06_std_cr_0.0_mu_speed_0.01_std_speed_0.0_ndt_6000_nf_200_gif.gif)
+and here is how the spread influences the simulation
 
-![Tailgating half perception](saved_gifs/2025-05-19_tailgating_nagents_200_perp_0.5_1200_600_4_gif.gif)
+![Inbetween with more spread](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.1_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Tailgating fifth perception](saved_gifs/2025-05-19_tailgating_nagents_200_perp_0.2_1200_600_4_gif.gif)
+![Inbetween with even more spread](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.2_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+
+![Inbetween with even even more spread](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.2_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+
+![Inbetween with even even more spread](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_1.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+
+And for the tailgating method, we see similiar results:
+
+![Tailgating full perception](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+
+![Tailgating half perception](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.5_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+
+![Tailgating fifth perception](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+
+And this is how the spread influences the simulation (std=0.1, 0.2, 0.3, 1.0 with mean=0.2)
+
+![Tailgating with more spread](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_0.1_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+
+![Tailgating with even more spread](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_0.2_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+
+![Tailgating with even even more spread](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_0.2_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+
+![Tailgating with even even more spread](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_1.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+
+## Velocity
+
 
 # Mathematical formulation
 
@@ -284,8 +311,10 @@ $$2\cdot|V| = \sum_{v\in V} \deg^+(v) = \sum_{v\in V} \deg^-(v) = |E|.$$
 We call $V'\subseteq V$ a *dynamical system* if the induced subgraph can
 be modelled as a result of the same problem setting, i.e. the induced
 subgraph is only depended on itself. This is equivalent to the following
-easy criteria 
-$$2\cdot |V'| = |E(V')|.$$ 
+easy criteria
+
+$$2\cdot |V'| = |E(V')|.$$
+
 We can the sets of dynamical
 systems with the set order $V_1 \leq V_2$ iff $V_1 \subseteq V_2$. We
 call $V'\subseteq V$ a *minimal dynamical system* if it is minimal with
