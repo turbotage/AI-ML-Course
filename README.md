@@ -8,6 +8,16 @@ title: WASP AIML
 
 # Introduction
 
+In Örebro, we did a human swarm experiment.
+Participants had to choose targets based on some distrubition and had to find a way to fulfill their task in the room.
+In that problem setting there are underlying biases as target distribution, speed and perception of the participants.
+But nevertheless, after some time, we all arrived at some kind end state.
+This state was mostly static, but in one task (cf. task(b)), we a got a dynamic periodic end state.
+
+The aim of this exercise was to study and maybe repdroduce the insights gathered in the human swarm experiment.
+By modelling this problem with a computer, we can change parameters as number of agents or velocity more freely.
+It will fail to modell humans exactly but gives a way to do multiple experiments in a short time with  parameters which we cannot fathom to do in the real world.
+
 # Problem setting
 
 Develop a simulation of the human swarm exercise in a programming
