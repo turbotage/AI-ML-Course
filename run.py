@@ -3,7 +3,6 @@ import numpy as np
 import math
 import networkx as nx
 from datetime import datetime
-import scipy as sp
 
 #import cupy as cp
 try:
@@ -15,14 +14,6 @@ except ImportError:
 	xp = np
 	xp_is_cupy = False
 
-try:
-	import cupyx.scipy as csp
-	xsp = csp
-	xsp_is_cupy = True
-except ImportError:
-	print("CuPy not available, using SciPy instead.")
-	xsp = sp
-	xsp_is_cupy = False
 
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -82,8 +73,12 @@ class Environment:
 			
 		self.goal_positions = xp.random.rand(2, n_agents)
 
+		self.update_iter = 0
+
 	def update(self):
 		
+		self.update_iter += 1
+
 		# Update memory length, it has been one iteration since we last saw any other agent
 		self.memory_length += 1
 
@@ -95,8 +90,8 @@ class Environment:
 		p2 = xp.zeros((2, self.n_agents), dtype=np.float32)
 
 		# Calculate pairwise distances between agents
-		position_array_col = self.positions[...,None].transpose(0,2,1).repeat(self.n_agents, axis=1)
-		position_array_row = self.positions[:,None,:].repeat(self.n_agents, axis=1)
+		position_array_row = self.positions[...,None].repeat(self.n_agents, axis=2)
+		position_array_col = self.positions[:,None,:].repeat(self.n_agents, axis=1)
 		pairwise_distance = xp.linalg.norm(position_array_row - position_array_col, axis=0)
 
 		# Check which agents are within the communication radius
@@ -105,7 +100,7 @@ class Environment:
 		perception_mask = pairwise_distance <= self.perception_radius
 
 		# Update the memory positions of the agents within the perception radius
-		self.memory_positions[:, perception_mask] = position_array_row[:, perception_mask]
+		self.memory_positions[:, perception_mask] = position_array_col[:, perception_mask]
 		# Agents should have zero memory length of agents within their perception radius
 		self.memory_length[perception_mask] = 0
 
@@ -162,6 +157,20 @@ def animate_positions(environment: Environment, timesteps, nframes, interval=100
 		cmap='viridis',  # Color map for clusters
 		)
 
+	quiver = True
+
+	if quiver:
+		# Add quiver for velocity vectors
+		quiver = ax.quiver(
+			get_numpy(environment.positions[0]), 
+			get_numpy(environment.positions[1]),
+			get_numpy(environment.goal_positions[0] - environment.positions[0]),
+			get_numpy(environment.goal_positions[1] - environment.positions[1]),
+			color='r',  # Color for velocity vectors
+			scale=10,  # Adjust scale for better visibility
+			alpha=0.5,  # Transparency
+		)
+
 	# Set axis limits (adjust as needed)
 	ax.set_xlim(0, 1)
 	ax.set_ylim(0, 1)
@@ -176,9 +185,21 @@ def animate_positions(environment: Environment, timesteps, nframes, interval=100
 		for i in range(num_steps):
 			environment.update()  # Update the environment
 			avg_vel.append(environment.get_average_velocity())  # Get average velocity
+		
 		scatter.set_offsets(get_numpy(environment.positions.T))  # Update scatter plot data
+		
+		if quiver:
+			quiver.set_offsets(get_numpy(environment.positions.T))  # Update quiver data
+			quiver.set_UVC(
+				get_numpy(environment.goal_positions[0] - environment.positions[0]),
+				get_numpy(environment.goal_positions[1] - environment.positions[1])
+			)  # Update quiver data
+		
 		print(f"Frame {frame} \r", end="")  # Print frame number
-		return scatter,
+		if quiver:
+			return scatter, quiver
+		else:
+			return scatter,
 
 	anim = FuncAnimation(fig, update, frames=nframes, interval=interval, blit=True, repeat=False)
 	# plt.show()
@@ -377,20 +398,20 @@ def create_graph_repr(target_agents):
 
 
 if __name__ == "__main__":
-	n_agents = 3
+	n_agents = 20
 	timesteps = 6000
-	nframes = timesteps // 100
+	nframes = 200
 	ncluster = 15
 	goal_method = "midpoint"
 	
 
 	envsettings = EnvironmentSettings()
 	envsettings.n_agents = n_agents
-	envsettings.goal_calculator = lambda p1, p2, positions: goal_calculator(p1=p1, p2=p2, positions=positions, goal_method=goal_method)
+	envsettings.goal_calculator = lambda positions, p1, p2: goal_calculator(positions, p1, p2, goal_method)
 	envsettings.target_generator = lambda n: random_generator(n)
-	envsettings.mean_perception_radius = 0.01
+	envsettings.mean_perception_radius = 2.0
 	envsettings.std_perception_radius = 0.0
-	envsettings.mean_communication_radius = 0.25 #envsettings.mean_perception_radius
+	envsettings.mean_communication_radius = 2.0 #envsettings.mean_perception_radius
 	envsettings.std_communication_radius = 0.0
 	envsettings.mean_speed = 1e-2
 	envsettings.std_speed = 0.0
@@ -404,7 +425,9 @@ if __name__ == "__main__":
 	filename += f"mu_speed_{envsettings.mean_speed}_std_speed_{envsettings.std_speed}_"
 	filename += f"ndt_{timesteps}_nf_{nframes}"
 
-	debug = True
+	#filename = "giff"
+
+	debug = False
 	if debug:
 		for i in range(timesteps):
 			env.update()
