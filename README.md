@@ -259,11 +259,11 @@ Have for example a look at these simulations (full perception, 0.5, 0.2) with 20
 
 and for the tailgating method:
 
-![Inbetween full perception](saved_gifs/2025-05-19_tailgating_nagents_200_perp_5_1200_600_2_gif.gif)
+![Tailgating full perception](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_1e-06_std_cr_0.0_mu_speed_0.01_std_speed_0.0_ndt_6000_nf_200_gif.gif)
 
-![Inbetween half perception](saved_gifs/2025-05-19_tailgating_200_perp_0.5_1200_600_4_gif.gif)
+![Tailgating half perception](saved_gifs/2025-05-19_tailgating_nagents_200_perp_0.5_1200_600_4_gif.gif)
 
-![Inbetween fifth perception](saved_gifs/2025-05-19_tailgating_nagents_200_perp_0.2_1200_600_4_gif.gif)
+![Tailgating fifth perception](saved_gifs/2025-05-19_tailgating_nagents_200_perp_0.2_1200_600_4_gif.gif)
 
 # Mathematical formulation
 
