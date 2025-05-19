@@ -1,6 +1,7 @@
 
 import numpy as np
 import math
+import networkx as nx
 #import cupy as cp
 try:
 	import cupy as cp
@@ -17,22 +18,45 @@ from matplotlib.animation import FuncAnimation
 def get_numpy(arr):
 	return arr.get() if xp_is_cupy else arr
 
+class EnvironmentSettings:
+	def __init__(self):
+		self.n_agents = 100
+		self.goal_calculator = lambda p1, p2, positions: goal_calculator(p1=p1, p2=p2, positions=positions, goal_method="midpoint")
+		self.target_generator = None
+		self.dt = 0.01
+		self.mean_perception_radius = 0.1
+		self.std_perception_radius = 0.1
+
+		self.mean_communication_radius = 0.1
+		self.std_communication_radius = 0.1
+
+		self.mean_speed = 1e-2
+		self.std_speed = 1e-2
+		
 
 class Environment:
-	def __init__(self, n_agents, goal_calculator, target_generator=None, dt=0.1, memory_length=10, perception_radius=0.1):
+	def __init__(self, envsettings: EnvironmentSettings):
 
-		self.dt = dt
+		self.dt = envsettings.dt
 
-		self.goal_calculator = goal_calculator
+		self.goal_calculator = envsettings.goal_calculator
+
+		self.n_agents = n_agents
 
 		self.positions = xp.random.rand(2, n_agents).astype(np.float32)
 		self.last_positions = xp.copy(self.positions)
 
-		self.max_speed = 1e-2 + xp.abs(1e-2*xp.random.normal(size=(n_agents,)))#xp.ones(n_agents)
-		self.perception_radius = perception_radius*xp.ones(n_agents)
+		self.speed = 1e-2 + xp.abs(1e-2*xp.random.normal(size=(n_agents,)))#xp.ones(n_agents)
+		self.speed = envsettings.mean_speed + xp.abs(xp.random.normal(scale=envsettings.std_speed, size=(n_agents,)))
 
-		self.memory_target_positions = xp.random.rand(2, 2, n_agents).astype(np.float32)
-		self.memory_length = memory_length * xp.ones((n_agents, n_agents), dtype=np.int16)
+
+		self.perception_radius = envsettings.mean_perception_radius + xp.abs(xp.random.normal(scale=envsettings.std_perception_radius, size=(n_agents,)))
+		
+		
+		self.communication_radius = envsettings.mean_communication_radius + xp.abs(xp.random.normal(scale=envsettings.std_communication_radius, size=(n_agents,)))
+
+		self.memory_positions = 0.45 + 0.1*xp.random.rand(2, n_agents, n_agents).astype(np.float32)
+		self.memory_length = xp.ones((n_agents, n_agents), dtype=np.int16)
 		
 		#self.last_seen_positions = xp.random.rand((2, n_agents, n_agents)).astype(np.float32)
 
@@ -40,8 +64,8 @@ class Environment:
 		#self.target_agents = np.random.randint(0, n_agents-1, size=(2, n_agents))
 		self.cluster_indices = xp.zeros((n_agents), dtype=np.int32)
 
-		if target_generator is not None:
-			self.target_agents, self.agent_clusters = target_generator(n_agents)
+		if envsettings.target_generator is not None:
+			self.target_agents, self.agent_clusters = envsettings.target_generator(n_agents)
 		else:
 			self.target_agents = xp.random.randint(0, n_agents, size=(2, n_agents))
 			self.agent_clusters = None
@@ -50,34 +74,44 @@ class Environment:
 
 	def update(self):
 		
+		# Update memory length, it has been one iteration since we last saw any other agent
+		self.memory_length += 1
+
 		# Copy last updates positions and velocities
 		self.last_positions = xp.copy(self.positions)
 
-		# Communicate with other agents
-		# TODO::
 
+		p1 = xp.zeros((2, self.n_agents), dtype=np.float32)
+		p2 = xp.zeros((2, self.n_agents), dtype=np.float32)
 
+		# Calculate pairwise distances between agents
+		position_array = self.positions[...,None].repeat(self.n_agents, axis=2)
+		within_perception_radius = xp.linalg.norm(self.positions[...,None] - position_array.transpose(0,2,1), axis=0)
 
-		# Calculate new target position
-		p1 = self.positions[:, self.target_agents[0]]
-		p1_dist = xp.linalg.norm(p1 - self.positions, axis=0)
-		
-		perception_mask = p1_dist > self.perception_radius
-		# If the p1 agent is outside the perception radius, we use the last seen position
-		p1[:,perception_mask] = self.memory_target_positions[0,:,perception_mask].T
+		# Check which agents are within the communication radius
+		communication_mask = within_perception_radius < self.communication_radius
+		# Check which agents are within the perception radius
+		perception_mask = within_perception_radius < self.perception_radius
 
-		# If p1 is within perception radius, this is our last seen position
-		self.memory_target_positions[0,:,~perception_mask] = p1[:,~perception_mask].T
+		# Update the memory positions of the agents within the perception radius
+		self.memory_positions[:, perception_mask] = position_array[:, perception_mask]
+		# Agents should have zero memory length of agents within their perception radius
+		self.memory_length[perception_mask] = 0
 
+		# Loop over each agent, setting their target positions based on the last memory of the target agents
+		for n in range(self.n_agents):
+			commask = communication_mask[n,:]
+			idx = xp.where(commask)[0]
+			
+			last_mem_idx = idx[xp.argmin(self.memory_length[commask, self.target_agents[0, n]])]
+			# idx[last_mem_idx] holds the index of the agent within the communication radius of the n-th agent
+			# with the shortest memory length to the target, if no other agent is within the communication radius
+			# this is the n-th agent itself
 
-		p2 = self.positions[:, self.target_agents[1]]
-		p2_dist = xp.linalg.norm(p2 - self.positions, axis=0)
-		perception_mask = p2_dist > self.perception_radius
-		# If the p2 agent is outside the perception radius, we use the last seen position
-		p2[:,perception_mask] = self.memory_target_positions[1,:,perception_mask].T
+			p1[:,n] = self.memory_positions[:, last_mem_idx, self.target_agents[0, n]]
 
-		# If p2 is within perception radius, this is our last seen position
-		self.memory_target_positions[1,:,~perception_mask] = p2[:,~perception_mask].T
+			last_mem_idx = idx[xp.argmin(self.memory_length[commask, self.target_agents[1, n]])]
+			p2[:,n] = self.memory_positions[:, last_mem_idx, self.target_agents[1, n]]
 
 		# Calculate goal position and move towards it
 		self.goal_positions = self.goal_calculator(self.positions, p1, p2)
@@ -85,10 +119,13 @@ class Environment:
 		diff = self.goal_positions - self.positions
 		distance = xp.linalg.norm(diff, axis=0)
 
-		vdt = self.max_speed * self.dt
+		vdt = self.speed * self.dt
 		movement_mask = distance > vdt
 		self.positions[:,movement_mask] += vdt[movement_mask] * diff[:,movement_mask] / distance[movement_mask]
 		self.positions[:,~movement_mask] = self.goal_positions[:,~movement_mask]
+
+		# Walls
+		self.positions = xp.clip(self.positions, 0, 1)
 
 	def get_average_velocity(self):
 		return xp.linalg.norm(self.positions - self.last_positions, axis=0).mean() / self.dt
@@ -97,7 +134,7 @@ class Environment:
 		
 
 
-def animate_positions(environment, timesteps, nframes, interval=100, filename="agent_animation.gif", save=False):
+def animate_positions(environment: Environment, timesteps, nframes, interval=100, filename="agent_animation.gif", save=False):
 	"""
 	Animates the positions of agents in the environment over time.
 
@@ -159,7 +196,7 @@ def animate_positions(environment, timesteps, nframes, interval=100, filename="a
 	else:
 		plt.show()
 
-def between_goal_calculator(positions, p1, p2, goal_method):
+def goal_calculator(positions, p1, p2, goal_method):
 	"""
 	Provides the goal calculation for the agents base on the requested method.
 
@@ -313,7 +350,6 @@ def create_graph_repr(target_agents):
 	edge_list_1 = [(ind, targ_ind) for ind, targ_ind in enumerate(target_agents_1)]
 	edge_list_2 = [(ind, targ_ind) for ind, targ_ind in enumerate(target_agents_2)]
 
-	import networkx as nx
 	G = nx.DiGraph()
 	G.add_edges_from(edge_list_1, color="r")
 	G.add_edges_from(edge_list_2, color="b")
@@ -327,21 +363,36 @@ def create_graph_repr(target_agents):
 
 
 if __name__ == "__main__":
-	n_agents = 10
-	timesteps = 600
-	nframes = 300
+	n_agents = 200
+	timesteps = 1200
+	nframes = timesteps // 2
 	ncluster = 15
-	goal_method = "tailgating"
+	goal_method = "inbetween"
 	
-	perception_radius = 0.5
+	perception_radius = 0.1 # Is this used somewhere?
 
 	from datetime import datetime
 
-	for i in range(2):
+	for i in range(5):
+		# TODO: JGA: I hate this
+		envsettings = EnvironmentSettings()
+		envsettings.n_agents = n_agents
+		envsettings.goal_calculator = lambda p1, p2, positions: goal_calculator(p1=p1, p2=p2, positions=positions, goal_method=goal_method)
+		envsettings.target_generator = lambda n: random_generator(n)
+		envsettings.mean_perception_radius = 0.1
+		envsettings.std_perception_radius = 0.0
+		envsettings.mean_communication_radius = 0.000001 # envsettings.mean_perception_radius
+		envsettings.std_communication_radius = 0.0
+		envsettings.mean_speed = 1e-2
+		envsettings.std_speed = 0.0
 
-		env = Environment(n_agents, lambda p1, p2, positions: between_goal_calculator(p1=p1, p2=p2, positions=positions, goal_method=goal_method), 
-						lambda n: random_generator(n), # target_generator(n, ncluster, singleton_size=5), 
-						perception_radius=perception_radius)
-		filename = f"saved_gifs//{datetime.today().strftime('%Y-%m-%d')}_{goal_method}_nagents_{n_agents}_perp_{perception_radius}_{timesteps}_{nframes}_{i}"
 
-		animate_positions(env, timesteps, nframes, interval=1, filename=filename, save=True)
+		env = Environment(envsettings)
+
+		filename = f"saved_gifs//{datetime.today().strftime('%Y-%m-%d')}_{goal_method}_nagents_{n_agents}_"
+		filename += f"mu_pr_{envsettings.mean_perception_radius}_std_pr_{envsettings.std_perception_radius}_"
+		filename += f"mu_cr_{envsettings.mean_communication_radius}_std_cr_{envsettings.std_communication_radius}_"
+		filename += f"mu_speed_{envsettings.mean_speed}_std_speed_{envsettings.std_speed}_"
+		filename += f"ndt_{timesteps}_nf_{nframes}_{i}"
+
+		animate_positions(env, timesteps, nframes, interval=0, filename=filename, save=True)
