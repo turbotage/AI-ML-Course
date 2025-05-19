@@ -291,6 +291,31 @@ And this is how the spread influences the simulation (std=0.1, 0.2, 0.3, 1.0 wit
 
 ## Velocity
 
+Changing the mean just changes the speed of convergence, so it is more interesting to look how the spread of the velocity impacts the simulation.
+Here is an example, where the velocity drops from 0.1 to 0.01:
+
+![Standard inbetween](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+
+![Standard inbetween](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+
+When we change the spread of the overall velocity, then there exist now some agents who are faster than others.
+These agents we move more quickly to their target location and might have to wait for their slower targets to move.
+
+![Standard inbetween](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.05_ndt_1200_nf_600_gif.gif)
+
+![Standard inbetween](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.1_ndt_1200_nf_600_gif.gif)
+
+And we can see the same in the case of task (b)
+
+![Standard tailgating](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+
+![Standard tailgating](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+
+and spread
+
+![Standard tailgating](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.05_ndt_1200_nf_600_gif.gif)
+
+![Standard tailgating](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.1_ndt_1200_nf_600_gif.gif)
 
 # Mathematical formulation
 
