@@ -2,6 +2,8 @@
 import numpy as np
 import math
 import networkx as nx
+from datetime import datetime
+
 #import cupy as cp
 try:
 	import cupy as cp
@@ -11,6 +13,7 @@ except ImportError:
 	print("CuPy not available, using NumPy instead.")
 	xp = np
 	xp_is_cupy = False
+
 
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -46,16 +49,14 @@ class Environment:
 		self.positions = xp.random.rand(2, n_agents).astype(np.float32)
 		self.last_positions = xp.copy(self.positions)
 
-		self.speed = 1e-2 + xp.abs(1e-2*xp.random.normal(size=(n_agents,)))#xp.ones(n_agents)
 		self.speed = envsettings.mean_speed + xp.abs(xp.random.normal(scale=envsettings.std_speed, size=(n_agents,)))
-
 
 		self.perception_radius = envsettings.mean_perception_radius + xp.abs(xp.random.normal(scale=envsettings.std_perception_radius, size=(n_agents,)))
 		
 		
 		self.communication_radius = envsettings.mean_communication_radius + xp.abs(xp.random.normal(scale=envsettings.std_communication_radius, size=(n_agents,)))
 
-		self.memory_positions = 0.45 + 0.1*xp.random.rand(2, n_agents, n_agents).astype(np.float32)
+		self.memory_positions = 0.25 + 0.5*xp.random.rand(2, n_agents, n_agents).astype(np.float32)
 		self.memory_length = xp.ones((n_agents, n_agents), dtype=np.int16)
 		
 		#self.last_seen_positions = xp.random.rand((2, n_agents, n_agents)).astype(np.float32)
@@ -72,8 +73,12 @@ class Environment:
 			
 		self.goal_positions = xp.random.rand(2, n_agents)
 
+		self.update_iter = 0
+
 	def update(self):
 		
+		self.update_iter += 1
+
 		# Update memory length, it has been one iteration since we last saw any other agent
 		self.memory_length += 1
 
@@ -85,16 +90,17 @@ class Environment:
 		p2 = xp.zeros((2, self.n_agents), dtype=np.float32)
 
 		# Calculate pairwise distances between agents
-		position_array = self.positions[...,None].repeat(self.n_agents, axis=2)
-		within_perception_radius = xp.linalg.norm(self.positions[...,None] - position_array.transpose(0,2,1), axis=0)
+		position_array_row = self.positions[...,None].repeat(self.n_agents, axis=2)
+		position_array_col = self.positions[:,None,:].repeat(self.n_agents, axis=1)
+		pairwise_distance = xp.linalg.norm(position_array_row - position_array_col, axis=0)
 
 		# Check which agents are within the communication radius
-		communication_mask = within_perception_radius < self.communication_radius
+		communication_mask = pairwise_distance <= self.communication_radius
 		# Check which agents are within the perception radius
-		perception_mask = within_perception_radius < self.perception_radius
+		perception_mask = pairwise_distance <= self.perception_radius
 
 		# Update the memory positions of the agents within the perception radius
-		self.memory_positions[:, perception_mask] = position_array[:, perception_mask]
+		self.memory_positions[:, perception_mask] = position_array_col[:, perception_mask]
 		# Agents should have zero memory length of agents within their perception radius
 		self.memory_length[perception_mask] = 0
 
@@ -151,6 +157,20 @@ def animate_positions(environment: Environment, timesteps, nframes, interval=100
 		cmap='viridis',  # Color map for clusters
 		)
 
+	quiver = True
+
+	if quiver:
+		# Add quiver for velocity vectors
+		quiver = ax.quiver(
+			get_numpy(environment.positions[0]), 
+			get_numpy(environment.positions[1]),
+			get_numpy(environment.goal_positions[0] - environment.positions[0]),
+			get_numpy(environment.goal_positions[1] - environment.positions[1]),
+			color='r',  # Color for velocity vectors
+			scale=10,  # Adjust scale for better visibility
+			alpha=0.5,  # Transparency
+		)
+
 	# Set axis limits (adjust as needed)
 	ax.set_xlim(0, 1)
 	ax.set_ylim(0, 1)
@@ -165,9 +185,21 @@ def animate_positions(environment: Environment, timesteps, nframes, interval=100
 		for i in range(num_steps):
 			environment.update()  # Update the environment
 			avg_vel.append(environment.get_average_velocity())  # Get average velocity
+		
 		scatter.set_offsets(get_numpy(environment.positions.T))  # Update scatter plot data
+		
+		if quiver:
+			quiver.set_offsets(get_numpy(environment.positions.T))  # Update quiver data
+			quiver.set_UVC(
+				get_numpy(environment.goal_positions[0] - environment.positions[0]),
+				get_numpy(environment.goal_positions[1] - environment.positions[1])
+			)  # Update quiver data
+		
 		print(f"Frame {frame} \r", end="")  # Print frame number
-		return scatter,
+		if quiver:
+			return scatter, quiver
+		else:
+			return scatter,
 
 	anim = FuncAnimation(fig, update, frames=nframes, interval=interval, blit=True, repeat=False)
 	# plt.show()
@@ -208,32 +240,35 @@ def goal_calculator(positions, p1, p2, goal_method):
 	"""
 	match goal_method:
 		case "midpoint":
-			pgoal = 0.5 *(p1 + p2)
+			pgoal = 0.5*(p1+p2)
 		case "inbetween":
 			# We calculate the projection of the agent position on the line segment p2 + t(p_1 - p_2), t\in [0, 1]
 			direction = p1-p2
 			norm = xp.linalg.norm(direction, axis=0)
 			scalar_projection = xp.linalg.vecdot(positions-p2, direction, axis=0)/norm
-			# If we divide by 0 we get NaNs which should be replaced by 0
-			scalar_projection[xp.isnan(scalar_projection)] = 0
+			normmask = norm > 0
+			scalar_projection[normmask] /= norm[normmask]
+			scalar_projection[~normmask] = 0
 			t = xp.maximum(xp.minimum(scalar_projection, 1), 0)
 			pgoal = p2 + t*direction
 		case "tailgating":
 			# We calculate the projection of the agent position on the line segment p2 + t(p_1 - p_2), t\in [-\infty, 0]
 			direction = p1-p2
 			norm = xp.linalg.norm(direction, axis=0)
-			scalar_projection = xp.linalg.vecdot(positions-p2, direction, axis=0)/norm
-			scalar_projection[xp.isnan(scalar_projection)] = 0
+			scalar_projection = xp.linalg.vecdot(positions-p2, direction, axis=0)
+			normmask = norm > 0
+			scalar_projection[normmask] /= norm[normmask]
+			scalar_projection[~normmask] = 0
 			t = xp.minimum(scalar_projection, 0)
 			pgoal = p2 + t*direction
 		case "stupid-behind":
 			pgoal = p1
-		case "less-stupid-behind":
+		case "also-stupid-behind":
 			pgoal = p1 + 0.05*(p1 - p2)
 		case _:
 			print('''Requested goal_method not implemented. 
 					Please use one of "midpoint", "inbetween", "tailgating", 
-		 			"stupid-behind" or "less-stupid-behind".''')
+		 			"stupid-behind" or "also-stupid-behind".''')
 	
 	return pgoal
 	
@@ -363,36 +398,39 @@ def create_graph_repr(target_agents):
 
 
 if __name__ == "__main__":
-	n_agents = 200
-	timesteps = 1200
-	nframes = timesteps // 2
+	n_agents = 20
+	timesteps = 6000
+	nframes = 200
 	ncluster = 15
-	goal_method = "inbetween"
+	goal_method = "midpoint"
 	
-	perception_radius = 0.1 # Is this used somewhere?
 
-	from datetime import datetime
-
-	for i in range(5):
-		# TODO: JGA: I hate this
-		envsettings = EnvironmentSettings()
-		envsettings.n_agents = n_agents
-		envsettings.goal_calculator = lambda p1, p2, positions: goal_calculator(p1=p1, p2=p2, positions=positions, goal_method=goal_method)
-		envsettings.target_generator = lambda n: random_generator(n)
-		envsettings.mean_perception_radius = 0.1
-		envsettings.std_perception_radius = 0.0
-		envsettings.mean_communication_radius = 0.000001 # envsettings.mean_perception_radius
-		envsettings.std_communication_radius = 0.0
-		envsettings.mean_speed = 1e-2
-		envsettings.std_speed = 0.0
+	envsettings = EnvironmentSettings()
+	envsettings.n_agents = n_agents
+	envsettings.goal_calculator = lambda positions, p1, p2: goal_calculator(positions, p1, p2, goal_method)
+	envsettings.target_generator = lambda n: random_generator(n)
+	envsettings.mean_perception_radius = 2.0
+	envsettings.std_perception_radius = 0.0
+	envsettings.mean_communication_radius = 2.0 #envsettings.mean_perception_radius
+	envsettings.std_communication_radius = 0.0
+	envsettings.mean_speed = 1e-2
+	envsettings.std_speed = 0.0
 
 
-		env = Environment(envsettings)
+	env = Environment(envsettings)
 
-		filename = f"saved_gifs//{datetime.today().strftime('%Y-%m-%d')}_{goal_method}_nagents_{n_agents}_"
-		filename += f"mu_pr_{envsettings.mean_perception_radius}_std_pr_{envsettings.std_perception_radius}_"
-		filename += f"mu_cr_{envsettings.mean_communication_radius}_std_cr_{envsettings.std_communication_radius}_"
-		filename += f"mu_speed_{envsettings.mean_speed}_std_speed_{envsettings.std_speed}_"
-		filename += f"ndt_{timesteps}_nf_{nframes}_{i}"
+	filename = f"saved_gifs//{datetime.today().strftime('%Y-%m-%d')}_{goal_method}_nagents_{n_agents}_"
+	filename += f"mu_pr_{envsettings.mean_perception_radius}_std_pr_{envsettings.std_perception_radius}_"
+	filename += f"mu_cr_{envsettings.mean_communication_radius}_std_cr_{envsettings.std_communication_radius}_"
+	filename += f"mu_speed_{envsettings.mean_speed}_std_speed_{envsettings.std_speed}_"
+	filename += f"ndt_{timesteps}_nf_{nframes}"
 
-		animate_positions(env, timesteps, nframes, interval=0, filename=filename, save=True)
+	#filename = "giff"
+
+	debug = False
+	if debug:
+		for i in range(timesteps):
+			env.update()
+
+
+	animate_positions(env, timesteps, nframes, interval=0, filename=filename, save=True)
