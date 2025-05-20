@@ -190,6 +190,8 @@ $$
 $$
 
 ## Animation/Plotting
+Each run, produces an gif/animation of the simulation, a relational graph over agents and their chosen targets and a plot of the average velocity over time. Each agent is colored in the animation. The meaning of the coloring is dependent on which target generation method was used. For the ```random_generator``` the coloring has no meaning, while for the ```cluster_generator``` each cluster gets its own color.
+None of the examples in this text will be using the ```cluster_generator``` but feel free to test it. Each agents also has an arrow attached. The arrow points towards its current goal position. 
 
 ## Iterative Procedure
 How each agent shall move towards its goal position is determined by the ```update()``` function of the ```Environment``` class.
@@ -209,6 +211,7 @@ When ```goal_positions``` has been calculated from ```p1``` and ```p2```, we mov
 of length ```speed * dt``` in the direction of the goal. If ```speed * dt``` is longer than the distance to the goal position, we
 move straight to it.
 
+The ```memory_positions``` are initialized to a random point inside a boxed with sizelength $0.5$ centered in the room. This means that in the case of small perception radius. All agents will begin to travel towards the center and hopefully find their targets.
 
 
 # Experiments
@@ -262,15 +265,15 @@ The latter one can be somewhat attributed to the stepsize.
 
 The following example is of 25 agents which use the tailgating calculation:
 
-![Tailgating full perception animation](saved_gifs/2025-05-19_tailgating_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_gif.gif)
+![Tailgating full perception animation](saved_gifs/midnew/2025-05-19_tailgating_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_gif.gif)
 
-![Tailgating full perception velocity](saved_gifs/2025-05-19_tailgating_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_plt.jpg)
+![Tailgating full perception velocity](saved_gifs/midnew/2025-05-19_tailgating_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_plt.jpg)
 
-![Tailgating full perception graph representation](saved_gifs/2025-05-19_tailgating_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_graph.jpg)
+![Tailgating full perception graph representation](saved_gifs/midnew/2025-05-19_tailgating_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_graph.jpg)
 
 Note how the end velocity is not $0$ - the agents are fluctuating near a point.
 
-Here is a more clearer example of a periodic shape forming.
+Here is a more clear example of a periodic shape forming.
 At the end, it will probably converge to a point, but in a more realistic setting, this would be a periodic pattern (200 agents)
 
 ![Tailgating periodic gif](saved_gifs/special%20renders/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_0_gif.gif)
@@ -278,6 +281,17 @@ At the end, it will probably converge to a point, but in a more realistic settin
 ![Tailgating periodic plt](saved_gifs/special%20renders/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_0_plt.jpg)
 
 ![Tailgating periodic graph](saved_gifs/special%20renders/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_0_graph.jpg)
+
+## Task (c)
+
+For task (a) and (b) the communication radius was set to zero, effectevly turning off communication. In this task, we vary the communication radius to try and understand the effect of communication. To show the potential drastic differences. We lower the perception radius drastically. We first keep the communication radius small and then increments it.
+
+Below is an example of a super small perception radius, and zero communication. As can be seen,
+when the perception radius is this small and we have no communication. The agent likely never sees its target and just continuous to the initialized starting memory position.
+
+![tailgating](saved_gifs/comms/2025-05-20_tailgating_nagents_200_mu_pr_0.001_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_6000_nf_400_gif.gif)
+
+We then turn on the communication, with a small communication radius of $0.05$. This creates a more tightly clustered end result. Indicating that more agents find their 
 
 
 
@@ -293,71 +307,71 @@ Overall, the end state becomes more cluttered.
 
 Have for example a look at these simulations (full perception, 0.5, 0.2, 0.0001) with 200 agents for the inbetween method
 
-![Inbetween full perception](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Inbetween full perception](saved_gifs/midnew/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Inbetween half perception](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.5_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Inbetween half perception](saved_gifs/midnew/2025-05-19_inbetween_nagents_200_mu_pr_0.5_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Inbetween fifth perception](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Inbetween fifth perception](saved_gifs/midnew/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Inbetween fifth perception](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.0001_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Inbetween fifth perception](saved_gifs/midnew/2025-05-19_inbetween_nagents_200_mu_pr_0.0001_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
 and here is how the spread influences the simulation (mean=0.2, std=0.1/0.2/0.3/1.0)
 
-![Inbetween with more spread](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.1_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Inbetween with more spread](saved_gifs/midnew/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.1_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Inbetween with even more spread](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.2_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Inbetween with even more spread](saved_gifs/midnew/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.2_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Inbetween with even even more spread](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.3_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Inbetween with even even more spread](saved_gifs/midnew/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.3_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Inbetween with even even more spread](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_1.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Inbetween with even even more spread](saved_gifs/midnew/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_1.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
 We get a lot more active agents, but some less perceptive agents still get lost.
 
 And for the tailgating method, we see similiar results:
 
-![Tailgating full perception](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Tailgating full perception](saved_gifs/midnew/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Tailgating half perception](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.5_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Tailgating half perception](saved_gifs/midnew/2025-05-19_tailgating_nagents_200_mu_pr_0.5_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Tailgating fifth perception](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Tailgating fifth perception](saved_gifs/midnew/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
 And this is how the spread influences the simulation (std=0.1, 0.2, 0.3, 1.0 with mean=0.2)
 
-![Tailgating with more spread](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_0.1_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Tailgating with more spread](saved_gifs/midnew/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_0.1_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Tailgating with even more spread](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_0.2_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Tailgating with even more spread](saved_gifs/midnew/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_0.2_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Tailgating with even even more spread](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_0.3_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Tailgating with even even more spread](saved_gifs/midnew/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_0.3_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Tailgating with even even more spread](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_1.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Tailgating with even even more spread](saved_gifs/midnew/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_1.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
 ## Velocity
 
 Changing the mean just changes the speed of convergence, so it is more interesting to look how the spread of the velocity impacts the simulation.
 Here is an example, where the velocity drops from 0.1 to 0.01:
 
-![Standard inbetween](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Standard inbetween](saved_gifs/midnew/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Standard inbetween](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Standard inbetween](saved_gifs/midnew/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
 When we change the spread of the overall velocity, then there exist now some agents who are faster than others.
 These agents we move more quickly to their target location and might have to wait for their slower targets to move.
 
-![Standard inbetween](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.05_ndt_1200_nf_600_gif.gif)
+![Standard inbetween](saved_gifs/midnew/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.05_ndt_1200_nf_600_gif.gif)
 
-![Standard inbetween](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.1_ndt_1200_nf_600_gif.gif)
+![Standard inbetween](saved_gifs/midnew/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.1_ndt_1200_nf_600_gif.gif)
 
 And we can see the same in the case of task (b)
 
-![Standard tailgating](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Standard tailgating](saved_gifs/midnew/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Standard tailgating](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Standard tailgating](saved_gifs/midnew/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
 and spread
 
-![Standard tailgating](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.05_ndt_1200_nf_600_gif.gif)
+![Standard tailgating](saved_gifs/midnew/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.05_ndt_1200_nf_600_gif.gif)
 
-![Standard tailgating](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.1_ndt_1200_nf_600_gif.gif)
+![Standard tailgating](saved_gifs/midnew/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.1_ndt_1200_nf_600_gif.gif)
 
 # Appendix: Mathematical formulation
 
