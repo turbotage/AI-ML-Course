@@ -251,7 +251,7 @@ The following example is of 25 agents which use the tailgating calculation:
 Note how the end velocity is not $0$ - the agents are fluctuating near a point.
 
 Here is a more clearer example of a periodic shape forming.
-At the end, it will probably converge to a point, but in a more realistic setting, this would be a periodic pattern.
+At the end, it will probably converge to a point, but in a more realistic setting, this would be a periodic pattern (200 agents)
 
 ![Tailgating periodic gif](saved_gifs/special%20renders/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_0_gif.gif)
 
