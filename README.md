@@ -75,7 +75,7 @@ positions and the agents positions
 
 $$
 \begin{aligned}
-    \text{diff} &= \text{goal\textunderscore pos} - \text{old\textunderscore pos}\\
+    \text{diff} &= \text{goal\\_pos} - \text{old\\_pos}\\
     \text{dist} &= \lVert \text{diff} \rVert.
 \end{aligned}
 $$
@@ -84,11 +84,11 @@ Then, we update the positions based upon the distance is
 reachable within the time step in the following way:
 
 $$
-    \text{new\textunderscore pos} = \begin{cases}
-        \text{goal\textunderscore pos} & vdt \leq \text{diff} \\
+    \text{new\\_pos} = \begin{cases}
+        \text{goal\\_pos} & vdt \leq \text{diff} \\
         vdt/\text{dist} \cdot \text{diff}  & vdt > \text{diff}
     \end{cases}
-    $$
+$$
 
 Then, there is also a small function which returns the average velocity
 between each time step using the last and new position of the agents.
@@ -105,7 +105,7 @@ We have the following options for goal calculations:
 **\"midpoint\"**:  the goal is to position oneself in the middle between
     both targets.
 
-$$\text{goal\textunderscore pos} = \frac{1}{2}\left(\text{target1\textunderscore pos} + \text{target1\textunderscore pos}\right).$$
+$$\text{goal\\_pos} = \frac{1}{2}\left(\text{target1\\_pos} + \text{target1\\_pos}\right).$$
 
 **\"inbetween\"**:  the goal is to position oneself on the closest point
     in the line segment between the targets. For that, we calculate
