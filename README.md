@@ -203,8 +203,10 @@ convergence.
 
 Indeed, in all our experiments the system converged to stable state.
 These states are characterized by non-moving agents usually huddling
-together, forming clusters and converging to single points. In some
-cases the end results was a little bit dynamic, but this is can be
+together, forming clusters and converging to single points. 
+Inbetween these clusters, lines can form (cf. 200 agents in the section on perception radius).
+
+In some cases the end results was a little bit dynamic, but this is can be
 attributed to step size of the agents.
 
 The following example is of 25 agents which use the midpoint calculation:
@@ -224,7 +226,7 @@ The following example is of 25 agents which use the inbetween calculation:
 ![Midpoint full perception graph representation](saved_gifs/2025-05-19_inbetween_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_graph.jpg)
 
 In both examples, some clusters seem to form quickly with other agents joining after.
-We believe that these first cluster collapses are due what we call minimial dynamical systems.
+We believe that these first clusters collapses are due what we call minimial dynamical systems.
 These are minimal subsets of agents which are closed under the choice of targets.
 
 ## Task (b)
@@ -240,13 +242,22 @@ The latter one can be somewhat attributed to the stepsize.
 
 The following example is of 25 agents which use the tailgating calculation:
 
-![Midpoint full perception animation](saved_gifs/2025-05-19_tailgating_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_gif.gif)
+![Tailgating full perception animation](saved_gifs/2025-05-19_tailgating_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_gif.gif)
 
-![Midpoint full perception velocity](saved_gifs/2025-05-19_tailgating_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_plt.jpg)
+![Tailgating full perception velocity](saved_gifs/2025-05-19_tailgating_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_plt.jpg)
 
-![Midpoint full perception graph representation](saved_gifs/2025-05-19_tailgating_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_graph.jpg)
+![Tailgating full perception graph representation](saved_gifs/2025-05-19_tailgating_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_graph.jpg)
 
 Note how the end velocity is not $0$ - the agents are fluctuating near a point.
+
+Here is a more clearer example of a periodic shape forming.
+At the end, it will probably converge to a point, but in a more realistic setting, this would be a periodic pattern.
+
+![Tailgating periodic gif](saved_gifs/special%20renders/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_0_gif.gif)
+
+![Tailgating periodic plt](saved_gifs/special%20renders/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_0_plt.jpg)
+
+![Tailgating periodic graph](saved_gifs/special%20renders/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_0_graph.jpg)
 
 
 
@@ -255,11 +266,12 @@ Note how the end velocity is not $0$ - the agents are fluctuating near a point.
 ## Percpetion radius
 
 The perception radius can influence the simulation quite a lot.
-Some agents can get lost on the side of the field and only become active as soon as their targets come into field of vision.
+The agents tend to move towards the middle because of initialized memory.
+But then, they and only become active as soon as their targets come into field of vision.
 When this happens it can trigger a chain reaction with other agents becoming active as a result of the agent moving.
 Overall, the end state becomes more cluttered.
 
-Have for example a look at these simulations (full perception, 0.5, 0.2) with 200 agents for the inbetween method
+Have for example a look at these simulations (full perception, 0.5, 0.2, 0.0001) with 200 agents for the inbetween method
 
 ![Inbetween full perception](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
@@ -269,15 +281,17 @@ Have for example a look at these simulations (full perception, 0.5, 0.2) with 20
 
 ![Inbetween fifth perception](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.0001_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-and here is how the spread influences the simulation
+and here is how the spread influences the simulation (mean=0.2, std=0.1/0.2/0.3/1.0)
 
 ![Inbetween with more spread](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.1_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
 ![Inbetween with even more spread](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.2_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Inbetween with even even more spread](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.2_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Inbetween with even even more spread](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_0.3_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
 ![Inbetween with even even more spread](saved_gifs/2025-05-19_inbetween_nagents_200_mu_pr_0.2_std_pr_1.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+
+We get a lot more active agents, but some less perceptive agents still get lost.
 
 And for the tailgating method, we see similiar results:
 
@@ -293,7 +307,7 @@ And this is how the spread influences the simulation (std=0.1, 0.2, 0.3, 1.0 wit
 
 ![Tailgating with even more spread](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_0.2_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
-![Tailgating with even even more spread](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_0.2_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
+![Tailgating with even even more spread](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_0.3_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
 ![Tailgating with even even more spread](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_0.2_std_pr_1.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_1200_nf_600_gif.gif)
 
@@ -325,7 +339,7 @@ and spread
 
 ![Standard tailgating](saved_gifs/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.1_ndt_1200_nf_600_gif.gif)
 
-# Mathematical formulation
+# Appendix: Mathematical formulation
 
 ## Task (a)
 
@@ -397,13 +411,16 @@ for any $y\in F(V)$.
 We write $x_V = (x_v)_{v\in V}$ as the vector containing the canonical
 basis of $F(v)$.
 
-In task $(a)$ we like to minimize the following goal function
+In task $(a)$ we would like to minimize the following goal function
 
 $$\mathcal{E}(x_V) = \sum_{v\in V} \left\|x_v - \frac{1}{2}x_{Av} \right\|^2 = \sum_{v\in V} \left\|\left(I - \frac{1}{2}A\right)x_v \right\|^2$$
 
 with the start position of all the vertices of $V$ given by a matrix
-$X_0$ $$x_V(0) = X_0.$$ This minimization problem corresponds to the
-gradient flow equation 
+$X_0$ 
+
+$$x_V(0) = X_0.$$ 
+
+This minimization problem corresponds to the gradient flow equation 
 
 $$\partial_t x_V(t) = - \nabla\mathcal{E}(x_V).$$
 
@@ -427,3 +444,5 @@ $x_V(\infty)$.
 
 This end state must be a collapse of all points to one point. In this
 way all minimal dynamical systems are classified.
+
+In our similation, we don't use gradient descent, so this mathematical result has on limited application.
