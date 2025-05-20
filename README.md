@@ -76,7 +76,7 @@ positions and the agents positions
 $$
 \begin{aligned}
     \text{diff} &= \text{goal\\_pos} - \text{old\\_pos}\\
-    \text{dist} &= \| \text{diff} \|.
+    \text{dist} &= \lVert \text{diff} \rVert.
 \end{aligned}
 $$ 
 
@@ -117,7 +117,7 @@ $$\text{goal\\_pos} = \frac{1}{2}\left(\text{target1\\_pos} + \text{target1\\_po
 $$      
 \begin{aligned}
     \text{dir} &= \text{target1\\_pos} - \text{target2\\_pos} \\
-    \text{norm} &= \| \text{dir} \| \\
+    \text{norm} &= \lVert \text{dir } \rVert \\
     s &= \langle \text{pos}- \text{target2\\_pos}, \text{dir} \rangle /\text{norm}.
 \end{aligned}
 $$
