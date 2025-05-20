@@ -73,22 +73,22 @@ timestep size.
 Here is the pseudo-code: Calculate the distance between the goal
 positions and the agents positions 
 
-```math
+$$
 \begin{aligned}
     \text{diff} &= \text{goal\textunderscore pos} - \text{old\textunderscore pos}\\
     \text{dist} &= \lVert \text{diff} \rVert.
 \end{aligned}
-```
+$$
 
 Then, we update the positions based upon the distance is
 reachable within the time step in the following way:
 
-```math
+$$
     \text{new\textunderscore pos} = \begin{cases}
         \text{goal\textunderscore pos} & vdt \leq \text{diff} \\
         vdt/\text{dist} \cdot \text{diff}  & vdt > \text{diff}
     \end{cases}
-```
+    $$
 
 Then, there is also a small function which returns the average velocity
 between each time step using the last and new position of the agents.
@@ -105,9 +105,7 @@ We have the following options for goal calculations:
 **\"midpoint\"**:  the goal is to position oneself in the middle between
     both targets.
 
-```math
-\text{goal\textunderscore pos} = \frac{1}{2}\left(\text{target1\textunderscore pos} + \text{target1\textunderscore pos}\right).
-```
+$$\text{goal\textunderscore pos} = \frac{1}{2}\left(\text{target1\textunderscore pos} + \text{target1\textunderscore pos}\right).$$
 
 **\"inbetween\"**:  the goal is to position oneself on the closest point
     in the line segment between the targets. For that, we calculate
@@ -116,23 +114,21 @@ We have the following options for goal calculations:
     nearest point in the line segment. The pseudo code looks like this:
     Calculate the scalar projection:
 
-```math   
+$$      
 \begin{aligned}
-    \text{dir} &= \text{target1\textunderscore pos} - \text{target2\textunderscore pos} \\
+    \text{dir} &= \text{target1\\_pos} - \text{target2\\_pos} \\
     \text{norm} &= \lVert \text{dir } \rVert \\
-    s &= \langle \text{pos}- \text{target2\textunderscore pos}, \text{dir} \rangle /\text{norm}.
+    s &= \langle \text{pos}- \text{target2\\_pos}, \text{dir} \rangle /\text{norm}.
 \end{aligned}
-```
+$$
     
 Then the nearest point on the line segment is given
 by 
 
-```math
-\begin{aligned}
+$$\begin{aligned}
         t &= \max\\{\min \\{s, 1\\}, 0\\}\\
-        \text{goal\textunderscore pos} &= \text{target2\textunderscore pos} + t\cdot \text{dir}.        
-\end{aligned}
-```
+        \text{goal\\_pos} &= \text{target2\\_pos} + t\cdot \text{dir}.        
+\end{aligned}$$
 
 If the norm is $0$, we get a division by zero. In
 this case both targets are on the same point, so just try to get to
@@ -143,12 +139,12 @@ point in the line behind target2. This is similar to \"midpoint\"
 with the difference being in the possible line parameter we are
 looking for ($(-\infty, 0]$ instead of $[0, 1]$). 
 
-```math   
+$$
 \begin{aligned}
         t &= \min \\{s, 0\\}\\
-        \text{goal\textunderscore pos} &= \text{target2\textunderscore pos} + t\cdot \text{dir}.
+        \text{goal\\_pos} &= \text{target2\\_pos} + t\cdot \text{dir}.
 \end{aligned}
-```
+$$
 
 ## Target generation
 
