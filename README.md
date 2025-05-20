@@ -75,7 +75,7 @@ positions and the agents positions
 
 $$
 \begin{aligned}
-    \text{diff} &= \text{goal\\_pos} - \text{old\\_pos}\\
+    \text{diff} &= \text{goal\_pos} - \text{old\_pos}\\
     \text{dist} &= \lVert \text{diff} \rVert.
 \end{aligned}
 $$ 
@@ -84,8 +84,8 @@ Then, we update the positions based upon the distance is
 reachable within the time step in the following way:
 
 $$
-    \text{new\\_pos} = \begin{cases}
-        \text{goal\\_pos} & vdt \leq \text{diff} \\
+    \text{new\_pos} = \begin{cases}
+        \text{goal\_pos} & vdt \leq \text{diff} \\
         vdt/\text{dist} \cdot \text{diff}  & vdt > \text{diff}
     \end{cases}
     $$
@@ -190,6 +190,26 @@ $$
 $$
 
 ## Animation/Plotting
+
+## Iterative Procedure
+How each agent shall move towards its goal position is determined by the ```update()``` function of the ```Environment``` class.
+
+The ```Environment``` class holds the ```memory_positions``` array and the ```memory_length``` array. ```memory_positions[:,i,j]``` holds the last position agent ```i``` saw agent ```j```. That is the last position of agent ```j``` when it was still in the perception
+radius of agent ```i```. ```memory_length[i,j]``` holds how many iterations ago, it was that agent ```i``` saw agent ```j```.
+
+At the beginning of every new ```update()``` the memory length is incremented. Distances between all agents are calculated.
+Then we calculate which are within ```communication_radius``` and which are in ```perception_radius```.
+For all agents that are within ```perception_radius``` of eachother, ```memory_positions``` and ```memory_length``` is updated.
+
+We then iterate over all agents. For each agent we extract all other agents that are withing that agents communication radius (This includes the agent itself). We then checks which agent within the communication radius, that has the freshest memory of this agents
+targets. I.e the freshest memory position of the target agents, becomes the positions we later calculate our goal position with.
+These positions are the ```p1``` and ```p2``` arrays in the code. Note that we can elliminate communication by setting ```communication_radius``` to zero. Then the only agent within communication radius is the agent itself. And it will update ```p1``` and ```p2``` for goal setting, only based on its own perception radius.
+
+When ```goal_positions``` has been calculated from ```p1``` and ```p2```, we move towards it. This is done by taking a step
+of length ```speed * dt``` in the direction of the goal. If ```speed * dt``` is longer than the distance to the goal position, we
+move straight to it.
+
+
 
 # Experiments
 
