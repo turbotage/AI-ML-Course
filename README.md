@@ -6,6 +6,8 @@ title: WASP AIML
 ---
 
 
+# Its probaly easiest to read the report on the github page. Link to the project git is [here](https://github.com/turbotage/AI-ML-Course/tree/main)
+
 # Introduction
 
 In Örebro, we did a human swarm experiment.
