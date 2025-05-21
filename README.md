@@ -222,18 +222,25 @@ The ```memory_positions``` are initialized to a random point inside a boxed with
 ## Task (a)
 
 In task (a), we considered the \"in-between\" and \"mid-point\" goal
-calculation method, which try to place the agents either on the nearest
+calculation method, which tries to place the agents either on the nearest
 point of the in-between-line of the target agents or in the middle. In
 both cases, results seemed to coincide differing only in the speed of
 convergence.
+
+We ran multiple tests with varying number of agents, but keeping everything else constant.
+Importantly, the perception radius was chosen as big enough, such that each agent can see all other agents.
 
 Indeed, in all our experiments the system converged to stable state.
 These states are characterized by non-moving agents usually huddling
 together, forming clusters and converging to single points. 
 Inbetween these clusters, lines can form (cf. 200 agents in the section on perception radius).
-
+Here, the number of agents influences how many clusters and lines will form more regularly.
 In some cases the end results was a little bit dynamic, but this is can be
 attributed to step size of the agents.
+
+This seems to coincide with the results of our human swarm experiments, where large 
+groups of people huddled together trying to push eachother away and lines were forming inbetween these clusters.
+The difference to our simulation is, that agents can go through eachother and cannot be prevented from moving to their target location.
 
 The following example is of 25 agents which use the midpoint calculation:
 
@@ -243,6 +250,8 @@ The following example is of 25 agents which use the midpoint calculation:
 
 ![Midpoint full perception graph representation](saved_gifs/midnew/2025-05-19_midpoint_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_graph.jpg)
 
+Note that the average velocity is not necesarrily monotone falling. This is due to small changes of targets increasing the agents goalposition drastically.
+This can be seen even better with the "inbetween" method, which is not as linear dependent on the target agents.
 The following example is of 25 agents which use the inbetween calculation:
 
 ![Midpoint full perception animation](saved_gifs/midnew/2025-05-19_inbetween_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_gif.gif)
@@ -254,17 +263,22 @@ The following example is of 25 agents which use the inbetween calculation:
 In both examples, some clusters seem to form quickly with other agents joining after.
 We believe that these first clusters collapses are due what we call minimial dynamical systems.
 These are minimal subsets of agents which are closed under the choice of targets.
+For more information see our appendix, where tried to mathematically formulate this problem.
 
 ## Task (b)
 
 In task (b), we considered the \"tailgating\" goalcalculation method, which tries to place the agent to the closest point on the line behind target agent 2.
-Suprisingly, this resulted into a similar behaviour as in the other task with some occurences of dynamical periodic end states.
+Suprisingly, this resulted into a similar behaviour as in task (a) with some occurences of dynamical periodic end states.
 
-We expected a lot more of these periodical end states but maybe due to our goal calculation method, these didn't arise as often as anticipated.
+Here, we also kept everything but the number agents constant and choose the perception radius big enough such that every agent see everyone else.
 
-The convergence process can be very different though.
+The convergence process can be very different to task (a).
 We see a lot of lines forming after slower agents which then follow these slower agents until either everything collapses to points or they form a cyclic periodic shape.
 The latter one can be somewhat attributed to the stepsize.
+
+In the human swarm experiment, we saw a periodical endstate forming.
+So, we expected a lot more of these big periodical end states but maybe due to our goal calculation method, these didn't arise as often as anticipated.
+But looking back, the endstate in our human swarm experiment would have collapsed into endstates which we saw during testing: a lot of agents exchanging their position rapidilly around a point.
 
 The following example is of 25 agents which use the tailgating calculation:
 
