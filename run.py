@@ -434,23 +434,10 @@ if __name__ == "__main__":
 		envsettings.n_agents = 200
 		envsettings.goal_calculator = lambda positions, p1, p2: goal_calculator(positions, p1, p2, goal_method)
 		envsettings.target_generator = lambda n: random_generator(n)
-		envsettings.mean_perception_radius = 0.01
+		envsettings.mean_perception_radius = 0.001
 		envsettings.std_perception_radius = 0.0
-		envsettings.mean_communication_radius = 0.1
-		envsettings.std_communication_radius = 0.0
-		envsettings.mean_speed = 0.1
-		envsettings.std_speed = 0.0
-
-		one_run(envsettings, timesteps, nframes, goal_method, extra_map)
-
-		envsettings = EnvironmentSettings()
-		envsettings.n_agents = 200
-		envsettings.goal_calculator = lambda positions, p1, p2: goal_calculator(positions, p1, p2, goal_method)
-		envsettings.target_generator = lambda n: random_generator(n)
-		envsettings.mean_perception_radius = 0.1
-		envsettings.std_perception_radius = 0.0
-		envsettings.mean_communication_radius = 0.0
-		envsettings.std_communication_radius = 0.0
+		envsettings.mean_communication_radius = 0.05
+		envsettings.std_communication_radius = 0.05
 		envsettings.mean_speed = 0.1
 		envsettings.std_speed = 0.0
 

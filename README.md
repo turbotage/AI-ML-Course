@@ -287,13 +287,23 @@ At the end, it will probably converge to a point, but in a more realistic settin
 For task (a) and (b) the communication radius was set to zero, effectevly turning off communication. In this task, we vary the communication radius to try and understand the effect of communication. To show the potential drastic differences. We lower the perception radius drastically. We first keep the communication radius small and then increments it.
 
 Below is an example of a super small perception radius, and zero communication. As can be seen,
-when the perception radius is this small and we have no communication. The agent likely never sees its target and just continuous to the initialized starting memory position.
+when the perception radius is this small and we have no communication. The agent likely never see its target and just continuou to the initialized starting memory position.
 
-![tailgating](saved_gifs/comms/2025-05-20_tailgating_nagents_200_mu_pr_0.001_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_6000_nf_400_gif.gif)
+![inbetween](saved_gifs/comms/2025-05-21_inbetween_nagents_200_mu_pr_0.001_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_6000_nf_350_gif.gif)
 
-We then turn on the communication, with a small communication radius of $0.05$. This creates a more tightly clustered end result. Indicating that more agents find their 
+This straight motion to initialized starting memory position can also be understood from the velocity below.
+Iff all particles move straight to the starting memory position. The velocity would just taper off like below.
 
+![inbetween](saved_gifs/comms/2025-05-21_inbetween_nagents_200_mu_pr_0.001_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_6000_nf_350_plt.jpg)
 
+We then turn on the communication, with a small communication radius of $0.05$. This creates a more tightly clustered end result. Indicating that more agents find their true goal position. What can also be seen is a much more chaotic end behaviour. Some agents seem to walk around or "bounce" around near the end state. This is a communication type behaviour. What happens is that the agent walks towards its current goal position. It then ends up within communication radius of another agent with a more recent memory of one of the agents targets. This renew the goal position of the agent so it changes direction.
+
+![inbetween](saved_gifs/comms/2025-05-20_inbetween_nagents_200_mu_pr_0.001_std_pr_0.0_mu_cr_0.05_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_6000_nf_350_gif.gif)
+
+![inbetween](saved_gifs/comms/2025-05-20_inbetween_nagents_200_mu_pr_0.001_std_pr_0.0_mu_cr_0.05_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_6000_nf_350_plt.jpg)
+
+One thing that we didn't add but which would make the communication more powerfull. Is the update of the agents own last memory position based on the last memory position of other agents within communication radius.
+So that if another agent within communication radius had a more recent memory position. Then the agents memory position would be updated to that. Of course, one could also make the communication into a network. So that asking one agent, that agent could then ask other inside their communication radius and so on. In that case given enough agents. The effective communication radius would be much larger.
 
 # Influence of parameters
 
@@ -301,7 +311,7 @@ We then turn on the communication, with a small communication radius of $0.05$. 
 
 The perception radius can influence the simulation quite a lot.
 The agents tend to move towards the middle because of initialized memory.
-But then, they and only become active as soon as their targets come into field of vision.
+But then, they only become active as soon as their targets come into field of vision.
 When this happens it can trigger a chain reaction with other agents becoming active as a result of the agent moving.
 Overall, the end state becomes more cluttered.
 
@@ -372,6 +382,18 @@ and spread
 ![Standard tailgating](saved_gifs/midnew/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.05_ndt_1200_nf_600_gif.gif)
 
 ![Standard tailgating](saved_gifs/midnew/2025-05-19_tailgating_nagents_200_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.01_std_speed_0.1_ndt_1200_nf_600_gif.gif)
+
+## Communication Radius
+
+The effect of communication radius is large. Its hard to make a fair comparison, but for ending up at your goal position, it is often better to have a quite small perception radius but large communication radius than having a large perception radius. To examplify this we below first show an animation of agents having a perception radius of $0.1$ then an animation of agents having $0.001$ as perception radius but $0.1$ communication radius.
+
+As can see in the $0.1$ perception radius case below. Alot of the agents don't converge to their true goal position.
+![Standard tailgating](saved_gifs/comms/2025-05-20_inbetween_nagents_200_mu_pr_0.1_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_6000_nf_350_gif.gif)
+
+While in the example below of $0.001$ perception radius but $0.1$ communication radius, a much larger portion of the agents converge.
+
+![Standard tailgating](saved_gifs/comms/2025-05-21_inbetween_nagents_200_mu_pr_0.001_std_pr_0.0_mu_cr_0.1_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_6000_nf_350_gif.gif)
+
 
 # Appendix: Mathematical formulation
 
@@ -479,4 +501,4 @@ $x_V(\infty)$.
 This end state must be a collapse of all points to one point. In this
 way all minimal dynamical systems are classified.
 
-In our similation, we don't use gradient descent, so this mathematical result has on limited application.
+In our similation, we don't use gradient descent. Although the for a minimal dynamical system. The constant end state should still hold with our method. For the inbetween and the midpoint method the iterative procedure comes from a contraction mapping (a nonexpansive and one strictly decreasing). But the gradient descent formulation also illuminates a multiagent system where another non local behaviour of the agents and communication would move towards a solution. That is if all the agents could communicate their positions. The direction an agent should move could be given by the gradient descent direction for the whole population minima objective instead of a local movement towards their own goal position.
