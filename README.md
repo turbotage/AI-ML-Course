@@ -234,19 +234,19 @@ attributed to step size of the agents.
 
 The following example is of 25 agents which use the midpoint calculation:
 
-![Midpoint full perception animation](saved_gifs/2025-05-19_midpoint_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_gif.gif) 
+![Midpoint full perception animation](saved_gifs/midnew/2025-05-19_midpoint_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_gif.gif) 
 
-![Midpoint full perception velocity](saved_gifs/2025-05-19_midpoint_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_plt.jpg)
+![Midpoint full perception velocity](saved_gifs/midnew/2025-05-19_midpoint_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_plt.jpg)
 
-![Midpoint full perception graph representation](saved_gifs/2025-05-19_midpoint_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_graph.jpg)
+![Midpoint full perception graph representation](saved_gifs/midnew/2025-05-19_midpoint_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_graph.jpg)
 
 The following example is of 25 agents which use the inbetween calculation:
 
-![Midpoint full perception animation](saved_gifs/2025-05-19_inbetween_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_gif.gif)
+![Midpoint full perception animation](saved_gifs/midnew/2025-05-19_inbetween_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_gif.gif)
 
-![Midpoint full perception velocity](saved_gifs/2025-05-19_inbetween_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_plt.jpg)
+![Midpoint full perception velocity](saved_gifs/midnew/2025-05-19_inbetween_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_plt.jpg)
 
-![Midpoint full perception graph representation](saved_gifs/2025-05-19_inbetween_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_graph.jpg)
+![Midpoint full perception graph representation](saved_gifs/midnew/2025-05-19_inbetween_nagents_25_mu_pr_5.0_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_900_nf_450_graph.jpg)
 
 In both examples, some clusters seem to form quickly with other agents joining after.
 We believe that these first clusters collapses are due what we call minimial dynamical systems.
