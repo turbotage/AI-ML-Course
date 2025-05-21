@@ -73,22 +73,17 @@ timestep size.
 Here is the pseudo-code: Calculate the distance between the goal
 positions and the agents positions 
 
-$$
-\begin{aligned}
-    \text{diff} &= \text{goal\\_pos} - \text{old\\_pos}\\
-    \text{dist} &= \lVert \text{diff} \rVert.
-\end{aligned}
-$$
+```python
+diff = pgoal - positions
+dist = np.norm(diff)
+```
 
 Then, we update the positions based upon the distance is
 reachable within the time step in the following way:
 
-$$
-    \text{new\\_pos} = \begin{cases}
-        \text{goal\\_pos} & vdt \leq \text{diff} \\
-        vdt/\text{dist} \cdot \text{diff}  & vdt > \text{diff}
-    \end{cases}
-$$
+```python
+new_positions = pgoal if vdt >= diff else vdt/dist
+```
 
 Then, there is also a small function which returns the average velocity
 between each time step using the last and new position of the agents.
@@ -105,7 +100,9 @@ We have the following options for goal calculations:
 **\"midpoint\"**:  the goal is to position oneself in the middle between
     both targets.
 
-$$\text{goal\\_pos} = \frac{1}{2}\left(\text{target1\\_pos} + \text{target1\\_pos}\right).$$
+```python
+pgoal = (p1 + p2)/2
+```
 
 **\"inbetween\"**:  the goal is to position oneself on the closest point
     in the line segment between the targets. For that, we calculate
@@ -114,21 +111,21 @@ $$\text{goal\\_pos} = \frac{1}{2}\left(\text{target1\\_pos} + \text{target1\\_po
     nearest point in the line segment. The pseudo code looks like this:
     Calculate the scalar projection:
 
-$$      
-\begin{aligned}
-    \text{dir} &= \text{target1\\_pos} - \text{target2\\_pos} \\
-    \text{norm} &= \lVert \text{dir } \rVert \\
-    s &= \langle \text{pos}- \text{target2\\_pos}, \text{dir} \rangle /\text{norm}.
-\end{aligned}
-$$
+
+```python
+dir = p1 - p2
+norm = np.norm(dir)
+s = np.dot(positions - p2, dir)/norm
+```
     
 Then the nearest point on the line segment is given
 by 
 
-$$\begin{aligned}
-        t &= \max\\{\min \\{s, 1\\}, 0\\}\\
-        \text{goal\\_pos} &= \text{target2\\_pos} + t\cdot \text{dir}.        
-\end{aligned}$$
+```python
+t = np.max(np.min(s,1), 0)
+pgoal = p2 + t*dir
+```
+
 
 If the norm is $0$, we get a division by zero. In
 this case both targets are on the same point, so just try to get to
@@ -139,12 +136,11 @@ point in the line behind target2. This is similar to \"midpoint\"
 with the difference being in the possible line parameter we are
 looking for ($(-\infty, 0]$ instead of $[0, 1]$). 
 
-$$
-\begin{aligned}
-        t &= \min \\{s, 0\\}\\
-        \text{goal\\_pos} &= \text{target2\\_pos} + t\cdot \text{dir}.
-\end{aligned}
-$$
+```python
+t = np.min(s, 0)
+pgoal = p2 + t*dir
+```
+
 
 ## Target generation
 
@@ -159,35 +155,33 @@ targets and does not target themself.
 
 We set up the identity array as
 
-$$I = [0, 1, \ldots, \text{n\\_agents}-1].$$
+```python
+I = np.arrange(0, n_agents) # I = [0, 1, .. , n_agents-1]
+```
 
-Then, if we add a random integer array with values between $1$ and $\text{n\\_agents}$ 
-with ```numpy.randInt``` and take the result modulo $\text{n\\_agents}$, we cannot 
+Then, if we add a random integer array with values between $1$ and ```n_agents``` 
+with ```numpy.randInt``` and take the result modulo ```n_agents```, we cannot 
 get the identity:
 
-$$
-\begin{aligned}
-    \text{shift1} & = \text{randInt(1, n\\_agents)}\\ 
-    \text{target1\\_pos} &\equiv I + \text{shift1}  & \text{mod n\\_agents}.
-\end{aligned}
-$$ 
+```python
+shift1 = np.randInt(1, n_agents)
+target1_index = (I + shift1)%%n_agents
+```
 
 For the second target, we need to guarantee a new shift
-between $1$ and $\text{n\\_agents}$ which is different to $\text{shift1}$
+between $1$ and ```n_agents``` which is different to ```shift1```
 at every position. We used the same trick as above, but with modulo
-$\text{n\\_agents}-1$ to guarantee a new shift. Because we need to $1$ at
+```n_agents-1``` to guarantee a new shift. Because we need to $1$ at
 the end, the random integer array is allowed this time to take values
-between $0$ and $\text{n\\_agents}-2$. Note here, that an addition of
-$\text{n\\_agents}-1$ corresponds to subtracting $1$ in modulo arithmetic
+between $0$ and ```n_agents-2```. Note here, that an addition of
+```n_agents-1``` corresponds to subtracting $1$ in modulo arithmetic
 which becomes $0$ when adding $1$ at the end. Thus 
 
-$$
-\begin{aligned}
-    \text{shift2} & = \text{shift1} + \text{randInt(0, n\\_agents-2)} &\text{mod n\\_agents}\\ 
-    \text{shift2} & = \text{shift2} +1 &\\
-    \text{target2\\_pos} &\equiv I + \text{shift2}  &\text{mod n\\_agents}.
-\end{aligned}
-$$
+```python
+shift2 = (shift1 + np.randInt(0, n_agents-2))%%n_agents
+shift2 = shift2 + 1
+target2_index = (I + shift2)%%n_agents
+```
 
 ## Animation/Plotting
 Each run, produces an gif/animation of the simulation, a relational graph over agents and their chosen targets and a plot of the average velocity over time.
