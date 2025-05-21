@@ -95,8 +95,8 @@ between each time step using the last and new position of the agents.
 
 ## Goal calculation
 
-We use a between_goal calculation function which gets passed to the
-position of the agents, the targets positions and a string to decide the
+We use a ```goal_calculator``` function which gets passed to the
+position of the agents ```positions```, the targets positions ```p1, p2``` and a string ```goal_method``` to decide the
 goal method. As an output, we return the goal positions of all the
 agents as an array.
 
@@ -161,9 +161,9 @@ We set up the identity array as
 
 $$I = [0, 1, \ldots, \text{n\\_agents}-1].$$
 
-Then, if we add a random
-integer array with values between $1$ and $\text{n\\_agents}$ and take
-the result modulo $\text{n\\_agents}$, we cannot get the identity:
+Then, if we add a random integer array with values between $1$ and $\text{n\\_agents}$ 
+with ```numpy.randInt``` and take the result modulo $\text{n\\_agents}$, we cannot 
+get the identity:
 
 $$
 \begin{aligned}
@@ -190,26 +190,29 @@ $$
 $$
 
 ## Animation/Plotting
-Each run, produces an gif/animation of the simulation, a relational graph over agents and their chosen targets and a plot of the average velocity over time. Each agent is colored in the animation. The meaning of the coloring is dependent on which target generation method was used. For the ```random_generator``` the coloring has no meaning, while for the ```cluster_generator``` each cluster gets its own color.
+Each run, produces an gif/animation of the simulation, a relational graph over agents and their chosen targets and a plot of the average velocity over time.
+For the average velocity plot and animation, we used ```matplotlib```, and for the plot of the relational graph, we used ```networkx```.
+
+In the animation, each agent is colored. The meaning of the coloring is dependent on which target generation method was used. For the ```random_generator``` the coloring has no meaning, while for the ```cluster_generator``` each cluster gets its own color.
 None of the examples in this text will be using the ```cluster_generator``` but feel free to test it. Each agents also has an arrow attached. The arrow points towards its current goal position. 
 
 ## Iterative Procedure
 How each agent shall move towards its goal position is determined by the ```update()``` function of the ```Environment``` class.
 
-The ```Environment``` class holds the ```memory_positions``` array and the ```memory_length``` array. ```memory_positions[:,i,j]``` holds the last position agent ```i``` saw agent ```j```. That is the last position of agent ```j``` when it was still in the perception
-radius of agent ```i```. ```memory_length[i,j]``` holds how many iterations ago, it was that agent ```i``` saw agent ```j```.
+The ```Environment``` class holds the ```memory_positions``` array and the ```memory_length``` array. ```memory_positions[:,i,j]``` holds the last position agent ```i``` saw agent ```j```. That is the last position of agent ```j``` when it was still in the perception radius of agent ```i```. 
+```memory_length[i,j]``` holds how many iterations ago, it was that agent ```i``` saw agent ```j```.
 
 At the beginning of every new ```update()``` the memory length is incremented. Distances between all agents are calculated.
 Then we calculate which are within ```communication_radius``` and which are in ```perception_radius```.
 For all agents that are within ```perception_radius``` of eachother, ```memory_positions``` and ```memory_length``` is updated.
 
-We then iterate over all agents. For each agent we extract all other agents that are withing that agents communication radius (This includes the agent itself). We then checks which agent within the communication radius, that has the freshest memory of this agents
-targets. I.e the freshest memory position of the target agents, becomes the positions we later calculate our goal position with.
-These positions are the ```p1``` and ```p2``` arrays in the code. Note that we can elliminate communication by setting ```communication_radius``` to zero. Then the only agent within communication radius is the agent itself. And it will update ```p1``` and ```p2``` for goal setting, only based on its own perception radius.
+We then iterate over all agents. For each agent we extract all other agents that are within that agents communication radius (This includes the agent itself). We then checks which agent within the communication radius, that has the freshest memory of this agents targets. 
+I.e the freshest memory position of the target agents, becomes the positions we later calculate our goal position with.
+These positions are the ```p1``` and ```p2``` arrays in the code. Note that we can eliminate communication by setting ```communication_radius``` to zero. Then the only agent within communication radius is the agent itself. And it will update ```p1``` and ```p2``` for goal setting, only based on its own perception radius.
 
-When ```goal_positions``` has been calculated from ```p1``` and ```p2```, we move towards it. This is done by taking a step
-of length ```speed * dt``` in the direction of the goal. If ```speed * dt``` is longer than the distance to the goal position, we
-move straight to it.
+When ```goal_positions``` has been calculated from ```p1``` and ```p2```, we move towards it. 
+This is done by taking a step of length ```speed * dt``` in the direction of the goal. 
+If ```speed * dt``` is longer than the distance to the goal position, we move straight to it.
 
 The ```memory_positions``` are initialized to a random point inside a boxed with sizelength $0.5$ centered in the room. This means that in the case of small perception radius. All agents will begin to travel towards the center and hopefully find their targets.
 
@@ -284,10 +287,10 @@ At the end, it will probably converge to a point, but in a more realistic settin
 
 ## Task (c)
 
-For task (a) and (b) the communication radius was set to zero, effectevly turning off communication. In this task, we vary the communication radius to try and understand the effect of communication. To show the potential drastic differences. We lower the perception radius drastically. We first keep the communication radius small and then increments it.
+For task (a) and (b) the communication radius was set to zero, effectivly turning off communication. In this task, we vary the communication radius to try and understand the effect of communication. To show the potential drastic differences, we first keep the communication radius small and then increment it.
 
 Below is an example of a super small perception radius, and zero communication. As can be seen,
-when the perception radius is this small and we have no communication. The agent likely never see its target and just continuou to the initialized starting memory position.
+when the perception radius is this small and we have no communication, the agent will likely never see its target and just continue to the initialized starting memory position.
 
 ![inbetween](saved_gifs/comms/2025-05-21_inbetween_nagents_200_mu_pr_0.001_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_6000_nf_350_gif.gif)
 
@@ -296,13 +299,13 @@ Iff all particles move straight to the starting memory position. The velocity wo
 
 ![inbetween](saved_gifs/comms/2025-05-21_inbetween_nagents_200_mu_pr_0.001_std_pr_0.0_mu_cr_0.0_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_6000_nf_350_plt.jpg)
 
-We then turn on the communication, with a small communication radius of $0.05$. This creates a more tightly clustered end result. Indicating that more agents find their true goal position. What can also be seen is a much more chaotic end behaviour. Some agents seem to walk around or "bounce" around near the end state. This is a communication type behaviour. What happens is that the agent walks towards its current goal position. It then ends up within communication radius of another agent with a more recent memory of one of the agents targets. This renew the goal position of the agent so it changes direction.
+We then turn on the communication, with a small communication radius of $0.05$. This creates a more tightly clustered end result. Indicating that more agents find their true goal position. What can also be seen is a much more chaotic end behaviour. Some agents seem to walk around or "bounce" around near the end state. This is a communication type behaviour. What happens is that the agent walks towards its current goal position. It then ends up within communication radius of another agent with a more recent memory of one of the agents targets. This renews the goal position of the agent so it changes direction.
 
 ![inbetween](saved_gifs/comms/2025-05-20_inbetween_nagents_200_mu_pr_0.001_std_pr_0.0_mu_cr_0.05_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_6000_nf_350_gif.gif)
 
 ![inbetween](saved_gifs/comms/2025-05-20_inbetween_nagents_200_mu_pr_0.001_std_pr_0.0_mu_cr_0.05_std_cr_0.0_mu_speed_0.1_std_speed_0.0_ndt_6000_nf_350_plt.jpg)
 
-One thing that we didn't add but which would make the communication more powerfull. Is the update of the agents own last memory position based on the last memory position of other agents within communication radius.
+One thing that we didn't add, but which would make the communication more powerful. Is the update of the agents own last memory position based on the last memory position of other agents within communication radius.
 So that if another agent within communication radius had a more recent memory position. Then the agents memory position would be updated to that. Of course, one could also make the communication into a network. So that asking one agent, that agent could then ask other inside their communication radius and so on. In that case given enough agents. The effective communication radius would be much larger.
 
 # Influence of parameters
